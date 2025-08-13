@@ -19,13 +19,14 @@ export default function Header(props: HeaderProps) {
                 >
                     Reset
                 </button>
-                <button
-                    className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                    onClick={() => setOpen(true)}
-                >
-                    Show JSON
-                </button>
+ 
             </div> */}
+            <button
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                onClick={() => setOpen(true)}
+            >
+                SHOW JSON
+            </button>
         </header>
     )
 }
