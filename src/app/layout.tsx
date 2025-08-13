@@ -14,8 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-      >
+      <body className="px-20 [@media(min-width:550px)]:px-[20px]">
         {children}
       </body>
     </html>
