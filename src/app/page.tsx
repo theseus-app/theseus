@@ -1,337 +1,8 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
-
-// =====================
-// Types
-// =====================
-
-type Anchor = "cohort start" | "cohort end";
-type RemoveDuplicate = "keep all" | "keep first" | "remove all";
-type CaliperScale = "propensity score" | "standardized" | "standardized logit";
-type BaseSelection = "all" | "target" | "comparator";
-type ModelType = "logistic" | "poisson" | "cox";
-type CvType = "auto" | "grid";
-type NoiseLevel = "silent" | "quiet" | "noisy";
-
-export type StudyDTO = {
-  name: string;
-  cohortDefinitions: {
-    targetCohort: { id: number | null; name: string };
-    comparatorCohort: { id: number | null; name: string };
-    outcomeCohort: { id: number | null; name: string }[];
-  };
-  negativeControlConceptSet: { id: number | null; name: string };
-  covariateSelection: {
-    conceptsToInclude: { id: number | null; name: string }[];
-    conceptsToExclude: { id: number | null; name: string }[];
-  };
-  getDbCohortMethodDataArgs: {
-    studyPeriods: { studyStartDate: string; studyEndDate: string }[]; // yyyyMMdd
-    maxCohortSize: number; // 0 = no limit
-  };
-  createStudyPopArgs: {
-    restrictToCommonPeriod: boolean;
-    firstExposureOnly: boolean;
-    washoutPeriod: number;
-    removeDuplicateSubjects: RemoveDuplicate;
-    censorAtNewRiskWindow: boolean;
-    removeSubjectsWithPriorOutcome: boolean;
-    priorOutcomeLookBack: number;
-    timeAtRisks: {
-      description: string;
-      riskWindowStart: number;
-      startAnchor: Anchor;
-      riskWindowEnd: number;
-      endAnchor: Anchor;
-      minDaysAtRisk: number;
-    }[];
-  };
-  propensityScoreAdjustment: {
-    matchOnPsArgs: {
-      description: string;
-      maxRatio: number; // 0 = no max
-      caliper: number; // 0 = off
-      caliperScale: CaliperScale;
-    }[];
-    stratifyByPsArgs: {
-      description: string;
-      numberOfStrata: number;
-      baseSelection: BaseSelection;
-    }[];
-    createPsArgs: {
-      maxCohortSizeForFitting: number; // 0 = no downsample
-      errorOnHighCorrelation: boolean;
-      prior: { priorType: "laplace"; useCrossValidation: boolean };
-      control: {
-        tolerance: number;
-        cvType: CvType;
-        fold: number;
-        cvRepetitions: number;
-        noiseLevel: NoiseLevel;
-        resetCoefficients: boolean;
-        startingVariance: number; // -1 = auto
-      };
-    };
-  };
-  fitOutcomeModelArgs: {
-    modelType: ModelType;
-    stratified: boolean;
-    useCovariates: boolean;
-    inversePtWeighting: boolean;
-    prior: { priorType: "laplace"; useCrossValidation: boolean };
-    control: {
-      tolerance: number;
-      cvType: CvType;
-      fold: number;
-      cvRepetitions: number;
-      noiseLevel: NoiseLevel;
-      resetCoefficients: boolean;
-      startingVariance: number;
-    };
-  };
-};
-
-// =====================
-// Helpers
-// =====================
-
-const yyyymmdd = (d: Date) => {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}`;
-};
-
-const fromHtmlDate = (val: string) => val.replaceAll("-", "");
-const toHtmlDate = (yyyymmddStr: string) =>
-  yyyymmddStr && yyyymmddStr.length === 8
-    ? `${yyyymmddStr.slice(0, 4)}-${yyyymmddStr.slice(4, 6)}-${yyyymmddStr.slice(6, 8)}`
-    : "";
-
-const defaultDTO: StudyDTO = {
-  name: "Study Name",
-  cohortDefinitions: {
-    targetCohort: { id: null, name: "Target Cohort Name" },
-    comparatorCohort: { id: null, name: "Comparator Cohort Name" },
-    outcomeCohort: [{ id: null, name: "Outcome Cohort Name" }],
-  },
-  negativeControlConceptSet: { id: null, name: "Negative Control Concept Set Name" },
-  covariateSelection: {
-    conceptsToInclude: [{ id: null, name: "Concept Name 1" }],
-    conceptsToExclude: [{ id: null, name: "Concept Name 3" }],
-  },
-  getDbCohortMethodDataArgs: {
-    studyPeriods: [
-      {
-        studyStartDate: yyyymmdd(new Date(new Date().getFullYear(), 0, 1)),
-        studyEndDate: yyyymmdd(new Date()),
-      },
-    ],
-    maxCohortSize: 0,
-  },
-  createStudyPopArgs: {
-    restrictToCommonPeriod: false,
-    firstExposureOnly: false,
-    washoutPeriod: 0,
-    removeDuplicateSubjects: "keep all",
-    censorAtNewRiskWindow: false,
-    removeSubjectsWithPriorOutcome: true,
-    priorOutcomeLookBack: 99999,
-    timeAtRisks: [
-      {
-        description: "TAR 1",
-        riskWindowStart: 0,
-        startAnchor: "cohort start",
-        riskWindowEnd: 0,
-        endAnchor: "cohort end",
-        minDaysAtRisk: 1,
-      },
-    ],
-  },
-  propensityScoreAdjustment: {
-    matchOnPsArgs: [
-      { description: "PS 1", maxRatio: 1, caliper: 0.2, caliperScale: "standardized logit" },
-    ],
-    stratifyByPsArgs: [
-      { description: "PS 2", numberOfStrata: 5, baseSelection: "all" },
-    ],
-    createPsArgs: {
-      maxCohortSizeForFitting: 250000,
-      errorOnHighCorrelation: true,
-      prior: { priorType: "laplace", useCrossValidation: true },
-      control: {
-        tolerance: 2e-7,
-        cvType: "auto",
-        fold: 10,
-        cvRepetitions: 10,
-        noiseLevel: "silent",
-        resetCoefficients: true,
-        startingVariance: 0.01,
-      },
-    },
-  },
-  fitOutcomeModelArgs: {
-    modelType: "cox",
-    stratified: false,
-    useCovariates: false,
-    inversePtWeighting: false,
-    prior: { priorType: "laplace", useCrossValidation: true },
-    control: {
-      tolerance: 2e-7,
-      cvType: "auto",
-      fold: 10,
-      cvRepetitions: 10,
-      noiseLevel: "quiet",
-      resetCoefficients: true,
-      startingVariance: 0.01,
-    },
-  },
-};
-
-// =====================
-// UI Primitives
-// =====================
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true);
-  return (
-    <div className="border rounded-2xl p-4 bg-white shadow-sm">
-      <button
-        type="button"
-        className="w-full flex items-center justify-between text-left"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <span className="text-sm opacity-70">{open ? "▾" : "▸"}</span>
-      </button>
-      {open && <div className="mt-4 space-y-3">{children}</div>}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      type={props.type ?? "text"}
-      className={
-        "border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/40 " +
-        (props.className ?? "")
-      }
-    />
-  );
-}
-
-function NumInput(props: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">) {
-  return <TextInput {...props} type="number" inputMode="numeric" pattern="[0-9]*" />;
-}
-
-function Checkbox({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        className="h-4 w-4"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      {label && <span className="select-none text-sm">{label}</span>}
-    </div>
-  );
-}
-
-function Select<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: T[] }) {
-  return (
-    <select
-      className="border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/40"
-      value={value}
-      onChange={(e) => onChange(e.target.value as T)}
-    >
-      {options.map((op) => (
-        <option key={op} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <input
-      type="date"
-      className="border rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/40"
-      value={toHtmlDate(value)}
-      onChange={(e) => onChange(fromHtmlDate(e.target.value))}
-    />
-  );
-}
-
-function ArrayHeader({ title, onAdd }: { title: string; onAdd?: () => void }) {
-  return (
-    <div className="flex items-center justify-between">
-      <h3 className="font-semibold text-base">{title}</h3>
-      {onAdd && (
-        <button
-          type="button"
-          onClick={onAdd}
-          className="text-sm px-3 py-1 rounded-lg border hover:bg-gray-50"
-        >
-          + Add
-        </button>
-      )}
-    </div>
-  );
-}
-
-function RowCard({ children, onRemove }: { children: React.ReactNode; onRemove?: () => void }) {
-  return (
-    <div className="rounded-xl border p-3 bg-gray-50/60">
-      <div className="flex justify-end">
-        {onRemove && (
-          <button type="button" className="text-xs text-red-600" onClick={onRemove}>
-            Remove
-          </button>
-        )}
-      </div>
-      <div className="grid md:grid-cols-2 gap-3">{children}</div>
-    </div>
-  );
-}
-
-function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-[92vw] max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between border-b px-4 py-2">
-          <h3 className="font-semibold">Confirm JSON</h3>
-          <button className="text-sm" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-        <div className="p-4 overflow-auto">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// =====================
-// Main Component
-// =====================
+import { Anchor, BaseSelection, CaliperScale, CvType, ModelType, NoiseLevel, StudyDTO } from "@/type/dtoBuilderType";
+import { defaultDTO } from "@/utils/dtoBuilderHelper";
+import { ArrayHeader, Checkbox, DateInput, Field, Modal, NumInput, RowCard, SectionCard, Select, TextInput } from "@/components/primitive";
 
 export default function StudyBuilderPage() {
   const [dto, setDto] = useState<StudyDTO>(() => structuredClone(defaultDTO));
@@ -364,20 +35,20 @@ export default function StudyBuilderPage() {
               className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
               onClick={() => setOpen(true)}
             >
-             Show JSON
+              Show JSON
             </button>
           </div>
         </header>
 
         {/* name */}
-        <Section title="Study Name">
+        <SectionCard title="Study Name">
           <Field label="name (string)">
             <TextInput value={dto.name} onChange={(e) => set("name", e.target.value)} placeholder="Study Name" />
           </Field>
-        </Section>
+        </SectionCard>
 
         {/* cohortDefinitions */}
-        <Section title="Cohort Definitions">
+        <SectionCard title="Cohort Definitions">
           <ArrayHeader title="Target Cohort" />
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="targetCohort.id (number|null)">
@@ -479,10 +150,10 @@ export default function StudyBuilderPage() {
               </RowCard>
             ))}
           </div>
-        </Section>
+        </SectionCard>
 
         {/* negativeControlConceptSet & covariateSelection */}
-        <Section title="Concept Sets">
+        <SectionCard title="Concept Sets">
           <ArrayHeader title="Negative Control Concept Set" />
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="negativeControlConceptSet.id (number|null)">
@@ -593,10 +264,10 @@ export default function StudyBuilderPage() {
               </RowCard>
             ))}
           </div>
-        </Section>
+        </SectionCard>
 
         {/* getDbCohortMethodDataArgs */}
-        <Section title="getDbCohortMethodDataArgs">
+        <SectionCard title="getDbCohortMethodDataArgs">
           <Field label="maxCohortSize (number)">
             <NumInput
               value={dto.getDbCohortMethodDataArgs.maxCohortSize}
@@ -653,10 +324,10 @@ export default function StudyBuilderPage() {
               </RowCard>
             ))}
           </div>
-        </Section>
+        </SectionCard>
 
         {/* createStudyPopArgs */}
-        <Section title="createStudyPopArgs">
+        <SectionCard title="createStudyPopArgs">
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="restrictToCommonPeriod (boolean)">
               <Checkbox
@@ -812,10 +483,10 @@ export default function StudyBuilderPage() {
               </RowCard>
             ))}
           </div>
-        </Section>
+        </SectionCard>
 
         {/* propensityScoreAdjustment */}
-        <Section title="propensityScoreAdjustment">
+        <SectionCard title="propensityScoreAdjustment">
           <ArrayHeader
             title="matchOnPsArgs (array)"
             onAdd={() =>
@@ -1111,10 +782,10 @@ export default function StudyBuilderPage() {
               />
             </Field>
           </div>
-        </Section>
+        </SectionCard>
 
         {/* fitOutcomeModelArgs */}
-        <Section title="fitOutcomeModelArgs">
+        <SectionCard title="fitOutcomeModelArgs">
           <div className="grid md:grid-cols-2 gap-3">
             <Field label="modelType (enum)">
               <Select
@@ -1245,9 +916,9 @@ export default function StudyBuilderPage() {
               />
             </Field>
           </div>
-        </Section>
+        </SectionCard>
 
-        <Section title="Preview & Export">
+        <SectionCard title="Preview & Export">
           <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-64">
             {jsonPretty}
           </pre>
@@ -1259,7 +930,7 @@ export default function StudyBuilderPage() {
               확인 (Popup)
             </button>
           </div>
-        </Section>
+        </SectionCard>
       </div>
 
       <Modal open={open} onClose={() => setOpen(false)}>
