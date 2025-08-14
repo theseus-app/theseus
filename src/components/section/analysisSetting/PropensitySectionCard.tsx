@@ -1,10 +1,10 @@
 import { ArrayHeader, Field, NumInput, RowCard, SectionCard, Select, TextInput, YesNoToggle } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
 import { StudyDTO, CaliperScale, BaseSelection, CvType, NoiseLevel, PsSetting } from "@/type/dtoBuilderType";
+import { observer } from "mobx-react-lite";
 import { useMemo, useState, useEffect } from "react";
 
-
-export default function PropensitySectionCard() {
+function PropensitySectionCard() {
 
     const { study } = useStore()
     const { dto, set } = study
@@ -390,3 +390,5 @@ export default function PropensitySectionCard() {
         </SectionCard>
     );
 }
+
+export default observer(PropensitySectionCard)

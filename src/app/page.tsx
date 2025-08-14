@@ -1,18 +1,13 @@
 "use client";
 import React from "react";
-import { Modal } from "@/components/primitive";
-import Header from "@/components/Header";
 import NameSection from "@/components/NameSection";
 import ComparisonSectionCard from "@/components/section/ComparisonSectionCard";
 import AnalysisSectionCard from "@/components/section/AnalysisSectionCard";
 import PreviewSectionCard from "@/components/section/PreviewSectionCard";
-import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
+import Text2JsonSectionCard from "@/components/section/Text2JsonSectionCard";
 
 function StudyBuilderPage() {
-  const { study } = useStore()
-  const { jsonPretty, open, setOpen } = study;
-
 
   return (
     <div className="flex flex-col max-w-[1280px] mx-auto">
@@ -23,6 +18,10 @@ function StudyBuilderPage() {
 
 
         <div className="pt-6 pb-12 space-y-8 px-4">
+
+          {/* Text2Json */}
+          <Text2JsonSectionCard />
+
           {/* Comparisons */}
           <ComparisonSectionCard />
 
