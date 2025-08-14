@@ -1,5 +1,5 @@
 import ArrayHeader from "./ArrayHeader";
-import Checkbox from "./Checkbox";
+import YesNoToggle from "./YesNoToggle";
 import DateInput from "./DateInput";
 import Field from "./Field";
 import Modal from "./Modal";
@@ -9,4 +9,4 @@ import SectionCard from "./SectionCard";
 import Select from "./Select";
 import TextInput from "./TextInput";
 
-export { ArrayHeader, Checkbox, DateInput, Field, Modal, NumInput, RowCard, SectionCard, Select, TextInput }
+export { ArrayHeader, YesNoToggle, DateInput, Field, Modal, NumInput, RowCard, SectionCard, Select, TextInput }

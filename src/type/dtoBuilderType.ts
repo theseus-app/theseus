@@ -6,6 +6,41 @@ export type ModelType = "logistic" | "poisson" | "cox";
 export type CvType = "auto" | "grid";
 export type NoiseLevel = "silent" | "quiet" | "noisy";
 
+//////////PropensityScoroeAdjustment///////////////
+export interface MatchOnPsArgs {
+    maxRatio: number;     // 0 = no max
+    caliper: number;      // 0 = off
+    caliperScale: CaliperScale;
+}
+
+export interface StratifyByPsArgs {
+    numberOfStrata: number;
+    baseSelection: BaseSelection;
+}
+// regularization
+export interface Prior {
+    priorType: "laplace";
+    useCrossValidation: boolean;
+}
+export interface Control {
+    tolerance: number;
+    cvType: CvType;
+    fold: number;
+    cvRepetitions: number;
+    noiseLevel: NoiseLevel;
+    resetCoefficients: boolean;
+    startingVariance: number; // -1 = auto
+}
+
+// unified PS setting (one of match or stratify)
+export interface PsSetting {
+    description: string;
+    // exactly one of these two must be non-null
+    matchOnPsArgs: MatchOnPsArgs | null;
+    stratifyByPsArgs: StratifyByPsArgs | null;
+}
+///////////////////////////////////////////////////
+
 export type StudyDTO = {
     name: string;
     cohortDefinitions: {
@@ -40,30 +75,13 @@ export type StudyDTO = {
         }[];
     };
     propensityScoreAdjustment: {
-        matchOnPsArgs: {
-            description: string;
-            maxRatio: number; // 0 = no max
-            caliper: number; // 0 = off
-            caliperScale: CaliperScale;
-        }[];
-        stratifyByPsArgs: {
-            description: string;
-            numberOfStrata: number;
-            baseSelection: BaseSelection;
-        }[];
+        psSettings: PsSetting[];
         createPsArgs: {
             maxCohortSizeForFitting: number; // 0 = no downsample
             errorOnHighCorrelation: boolean;
-            prior: { priorType: "laplace"; useCrossValidation: boolean };
-            control: {
-                tolerance: number;
-                cvType: CvType;
-                fold: number;
-                cvRepetitions: number;
-                noiseLevel: NoiseLevel;
-                resetCoefficients: boolean;
-                startingVariance: number; // -1 = auto
-            };
+            prior: Prior | null;
+            control: Control | null;
+
         };
     };
     fitOutcomeModelArgs: {
@@ -71,7 +89,7 @@ export type StudyDTO = {
         stratified: boolean;
         useCovariates: boolean;
         inversePtWeighting: boolean;
-        prior: { priorType: "laplace"; useCrossValidation: boolean };
+        prior: { priorType: "laplace"; useCrossValidation: boolean } | null;
         control: {
             tolerance: number;
             cvType: CvType;
@@ -80,6 +98,6 @@ export type StudyDTO = {
             noiseLevel: NoiseLevel;
             resetCoefficients: boolean;
             startingVariance: number;
-        };
+        } | null;
     };
 };

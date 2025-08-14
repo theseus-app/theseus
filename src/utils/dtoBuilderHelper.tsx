@@ -14,16 +14,16 @@ export const toHtmlDate = (yyyymmddStr: string) =>
         : "";
 
 export const defaultDTO: StudyDTO = {
-    name: "Study Name",
+    name: "",
     cohortDefinitions: {
-        targetCohort: { id: null, name: "Target Cohort Name" },
-        comparatorCohort: { id: null, name: "Comparator Cohort Name" },
-        outcomeCohort: [{ id: null, name: "Outcome Cohort Name" }],
+        targetCohort: { id: null, name: "" },
+        comparatorCohort: { id: null, name: "" },
+        outcomeCohort: [{ id: null, name: "" }],
     },
-    negativeControlConceptSet: { id: null, name: "Negative Control Concept Set Name" },
+    negativeControlConceptSet: { id: null, name: "" },
     covariateSelection: {
-        conceptsToInclude: [{ id: null, name: "Concept Name 1" }],
-        conceptsToExclude: [{ id: null, name: "Concept Name 3" }],
+        conceptsToInclude: [{ id: null, name: "" }],
+        conceptsToExclude: [{ id: null, name: "" }],
     },
     getDbCohortMethodDataArgs: {
         studyPeriods: [
@@ -44,7 +44,7 @@ export const defaultDTO: StudyDTO = {
         priorOutcomeLookBack: 99999,
         timeAtRisks: [
             {
-                description: "TAR 1",
+                description: "",
                 riskWindowStart: 0,
                 startAnchor: "cohort start",
                 riskWindowEnd: 0,
@@ -54,11 +54,12 @@ export const defaultDTO: StudyDTO = {
         ],
     },
     propensityScoreAdjustment: {
-        matchOnPsArgs: [
-            { description: "PS 1", maxRatio: 1, caliper: 0.2, caliperScale: "standardized logit" },
-        ],
-        stratifyByPsArgs: [
-            { description: "PS 2", numberOfStrata: 5, baseSelection: "all" },
+        psSettings: [
+            {
+                description: "PS 1",
+                matchOnPsArgs: { maxRatio: 1, caliper: 0.2, caliperScale: "standardized logit" },
+                stratifyByPsArgs: null,
+            },
         ],
         createPsArgs: {
             maxCohortSizeForFitting: 250000,

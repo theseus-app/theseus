@@ -1,16 +1,14 @@
-import { StudyDTO } from "@/type/dtoBuilderType"
-import { defaultDTO } from "@/utils/dtoBuilderHelper"
+import { useStore } from "@/stores/StoreProvider"
 
-interface HeaderProps {
-    setDto: React.Dispatch<React.SetStateAction<StudyDTO>>
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
-export default function Header(props: HeaderProps) {
-    const { setDto, setOpen } = props
+export default function Header() {
+    const { study } = useStore()
+    const { setOpen } = study;
+
+
     return (
         <header className="flex items-center justify-between py-10">
             <div>
-                <h1 className="text-2xl font-bold">Nocode Strategus</h1>
+                <h1 className="text-xl font-medium">THESEUS</h1>
             </div>
             {/* <div className="flex gap-2">
                 <button

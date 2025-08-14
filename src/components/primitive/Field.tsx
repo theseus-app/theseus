@@ -1,8 +1,19 @@
-export default function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export default function Field({
+    title,
+    label,
+    children,
+}: {
+    title?: string;
+    label?: string;
+    children: React.ReactNode;
+}) {
     return (
-        <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-700">{label}</span>
+        <div className="flex flex-col gap-2.5">
+            <div className="gap-1.5">
+                {title && <h3 className="font-semibold text-base">{title}</h3>}
+                <span className="text-sm font-medium text-gray-700">{label}</span>
+            </div>
             {children}
-        </label>
+        </div>
     );
 }

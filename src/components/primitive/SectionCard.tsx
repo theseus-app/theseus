@@ -15,11 +15,11 @@ export default function SectionCard({
     const collapsible = !noToggle;
 
     return (
-        <div className={`border-[0.5px] ${topGroup ? 'border-lightgray' : 'border-primary'} rounded-[2px] bg-white shadow-sm`}>
+        <div className={`border-[0.5px] ${topGroup ? 'border-primary' : 'border-lightgray'} rounded-[2px] bg-white shadow-sm`}>
             {collapsible ? (
                 <button
                     type="button"
-                    className={`${topGroup ? 'text-black bg-lightgray' : 'text-white bg-primary'} w-full flex items-center justify-between text-left px-4 py-3`}
+                    className={`${topGroup ? 'text-white bg-primary' : 'text-black bg-lightgray'} w-full flex items-center justify-between text-left px-4 py-3`}
                     onClick={() => setOpen((o) => !o)}
                     aria-expanded={open}
                 >
@@ -36,7 +36,7 @@ export default function SectionCard({
 
             {(collapsible ? open : true) && (
                 <div className={`${topGroup ? 'px-6 pb-6' : 'px-4 pb-6'}`}>
-                    <div className="mt-2 space-y-3">{children}</div>
+                    <div className={`${topGroup ? 'mt-6 space-y-6' : 'mt-4 space-y-4'}`}>{children}</div>
                 </div>
             )}
         </div>
