@@ -123,7 +123,7 @@ function OutcomeSection() {
                                                         control: { ...dto.fitOutcomeModelArgs.control!, cvType: v },
                                                     })
                                                 }
-                                                options={["auto", "grid"]}
+                                                options={["auto"]}
                                             />
                                         </Field>
 

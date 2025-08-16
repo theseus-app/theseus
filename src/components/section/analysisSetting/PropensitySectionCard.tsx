@@ -121,7 +121,7 @@ function PropensitySectionCard() {
                             {/* match */}
                             {mode === "match" && s.matchOnPsArgs && (
                                 <>
-                                    <Field label={`psSettings[${i}].matchOnPsArgs.maxRatio (number)`}>
+                                    <Field title="Matching Ratio (Maximum Comparators per Target)" label={`comparators per target person, 0 means no maximum`}>
                                         <NumInput
                                             value={s.matchOnPsArgs.maxRatio}
                                             onChange={(e) => {
@@ -136,7 +136,7 @@ function PropensitySectionCard() {
                                         />
                                     </Field>
 
-                                    <Field label={`psSettings[${i}].matchOnPsArgs.caliper (number)`}>
+                                    <Field title="Caliper" label='Maximum allowed difference in matching variable (e.g., propensity score) between target and comparator'>
                                         <NumInput
                                             step="0.01"
                                             value={s.matchOnPsArgs.caliper}
@@ -152,7 +152,7 @@ function PropensitySectionCard() {
                                         />
                                     </Field>
 
-                                    <Field label={`psSettings[${i}].matchOnPsArgs.caliperScale (enum)`}>
+                                    <Field title='Caliper Scale' label='Unit of the Caliper Value'>
                                         <Select
                                             value={s.matchOnPsArgs.caliperScale}
                                             onChange={(v: CaliperScale) => {
@@ -287,7 +287,7 @@ function PropensitySectionCard() {
                                             createPsArgs: { ...psa.createPsArgs, control: { ...psa.createPsArgs.control!, cvType: v } },
                                         })
                                     }
-                                    options={["auto", "grid"]}
+                                    options={["auto"]}
                                 />
                             </Field>
 

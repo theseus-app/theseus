@@ -1,8 +1,9 @@
 import { StudyDTO } from "@/types/dtoBuilderType";
 import { TextInput } from "./primitive";
 import { useStore } from "@/stores/StoreProvider";
+import { observer } from "mobx-react-lite";
 
-export default function NameSection() {
+function NameSection() {
     const { study } = useStore()
     const { dto, set } = study;
     return (
@@ -13,3 +14,5 @@ export default function NameSection() {
         </div >
     )
 }
+
+export default observer(NameSection)

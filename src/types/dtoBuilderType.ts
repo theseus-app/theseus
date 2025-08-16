@@ -3,7 +3,7 @@ export type RemoveDuplicate = "keep all" | "keep first" | "remove all";
 export type CaliperScale = "propensity score" | "standardized" | "standardized logit";
 export type BaseSelection = "all" | "target" | "comparator";
 export type ModelType = "logistic" | "poisson" | "cox";
-export type CvType = "auto" | "grid";
+export type CvType = "auto";
 export type NoiseLevel = "silent" | "quiet" | "noisy";
 
 //////////PropensityScoroeAdjustment///////////////
@@ -89,15 +89,7 @@ export type StudyDTO = {
         stratified: boolean;
         useCovariates: boolean;
         inversePtWeighting: boolean;
-        prior: { priorType: "laplace"; useCrossValidation: boolean } | null;
-        control: {
-            tolerance: number;
-            cvType: CvType;
-            fold: number;
-            cvRepetitions: number;
-            noiseLevel: NoiseLevel;
-            resetCoefficients: boolean;
-            startingVariance: number;
-        } | null;
+        prior: Prior | null;
+        control: Control | null;
     };
 };
