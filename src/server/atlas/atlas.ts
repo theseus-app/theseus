@@ -1,18 +1,28 @@
 import { openai as client } from "@/lib/openai";
-import { readFile } from "node:fs/promises";
 
 /** Remove code fences (```lang ... ```) from LLM outputs. */
 export function stripCodeFences(text: string): string {
     let cleaned = text.trim();
-    cleaned = cleaned.replace(/^```[\w]*\n?/, "");
+    cleaned = cleaned.replace(/^```[\w-]*\n?/, "");
     cleaned = cleaned.replace(/\n?```$/, "");
     return cleaned.trim();
 }
 
-/** 안전한 파일 로딩: 코드 파일 기준 상대경로(new URL) */
-async function readTextResource(relativePathFromThisFile: string) {
-    const url = new URL(relativePathFromThisFile, import.meta.url);
-    return readFile(url, "utf-8");
+/** Resolve absolute origin for server-side fetch to /public files */
+function resolveOrigin(explicit?: string) {
+    if (explicit) return explicit;
+    if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL; // e.g. https://your.domain
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;       // e.g. https://xxx.vercel.app
+    return "http://localhost:3000";                                               // dev fallback
+}
+
+/** Fetch text file from /public (e.g., "/templates/foo.txt") */
+async function readPublicText(relPath: string, opts?: { origin?: string; cache?: RequestCache }) {
+    const origin = resolveOrigin(opts?.origin);
+    const url = new URL(relPath, origin).toString();
+    const res = await fetch(url, { cache: opts?.cache ?? "force-cache" });
+    if (!res.ok) throw new Error(`Failed to fetch ${relPath}: ${res.status} ${res.statusText}`);
+    return res.text();
 }
 
 /**
@@ -20,10 +30,13 @@ async function readTextResource(relativePathFromThisFile: string) {
  */
 export async function text2json(
     text: string,
-    currentAnalysisSpecifications: string
+    currentAnalysisSpecifications: string,
+    opts?: { origin?: string; cache?: RequestCache } // <-- 서버 라우트에서 origin 전달 권장
 ): Promise<{ updatedSpec: string; description: string }> {
-    const analysisSpecificationsTemplate = await readTextResource(
-        "./resources/customAtlasTemplate_v1.3.0_annotated.txt"
+    // public/templates/customAtlasTemplate_v1.3.0_annotated.txt
+    const analysisSpecificationsTemplate = await readPublicText(
+        "/templates/customAtlasTemplate_v1.3.0_annotated.txt",
+        opts
     );
 
     const prompt = `<Instruction>
@@ -54,6 +67,7 @@ Description
 </Output Style>`;
 
     const completion = await client.chat.completions.create({
+        // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
     });
@@ -77,10 +91,13 @@ Description
  * ATLAS JSON -> Strategus R script
  */
 export async function json2strategus(
-    analysisSpecifications: string
+    analysisSpecifications: string,
+    opts?: { origin?: string; cache?: RequestCache }
 ): Promise<string> {
-    const template = await readTextResource(
-        "./resources/CreateStrategusAnalysisSpecification_template.R"
+    // public/templates/CreateStrategusAnalysisSpecification_template.R
+    const template = await readPublicText(
+        "/templates/CreateStrategusAnalysisSpecification_template.R",
+        opts
     );
 
     const prompt = `<Instruction>
@@ -99,6 +116,7 @@ ${template}
 </Template>`;
 
     const completion = await client.chat.completions.create({
+        // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
     });

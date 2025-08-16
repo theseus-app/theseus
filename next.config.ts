@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  outputFileTracingIncludes: {
+    "*": ["./src/server/atlas/resources/**"],
+  },
   webpack(config) {
     // 1) JS/TS에서 가져온 .svg 는 컴포넌트로 변환
     config.module.rules.push({
