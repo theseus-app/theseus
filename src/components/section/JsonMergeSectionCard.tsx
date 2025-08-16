@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { SectionCard, Field } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
+import { getTitleForPath } from "@/utils/pathTitles";
 
 /** ---------- helpers: parse / pretty ---------- */
 /** 코드펜스 제거 (```json ... ```), 앞뒤 공백 트림 */
@@ -276,18 +277,7 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
 
     return (
         <SectionCard title={title} topGroup>
-            {/* 상단: 원본/새 JSON 프리뷰 + 전체 선택 */}
-            <Field title="Previous (Current UI State)">
-                <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap">
-                    {prevJsonStr}
-                </pre>
-            </Field>
 
-            <Field title="Incoming (Newly Generated)">
-                <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap">
-                    {pretty(nextObj)}
-                </pre>
-            </Field>
 
             <Field title="Field-level Merge">
                 <div className="mb-3 flex gap-2 items-center">
@@ -333,7 +323,7 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
                                 const selected = choice[r.path] ?? (r.isDiff ? "new" : "old");
                                 return (
                                     <div key={r.path} className="grid grid-cols-12 border-b px-3 py-2 text-[12px]">
-                                        <div className="col-span-4 pr-2 break-all font-medium">{r.path || "<root>"}</div>
+                                        <div className="col-span-4 pr-2 break-all font-medium">{getTitleForPath(r.path) || "<root>"}</div>
                                         <div className="col-span-3 pr-2">
                                             <pre className="whitespace-pre-wrap">{pretty(r.oldVal)}</pre>
                                         </div>

@@ -1,4 +1,4 @@
-import { StudyDTO } from "@/type/dtoBuilderType";
+import { StudyDTO } from "@/types/dtoBuilderType";
 
 export const yyyymmdd = (d: Date) => {
     const yyyy = d.getFullYear();
@@ -8,7 +8,7 @@ export const yyyymmdd = (d: Date) => {
 };
 
 export const fromHtmlDate = (val: string) => val.replaceAll("-", "");
-export const toHtmlDate = (yyyymmddStr: string) =>
+export const toHtmlDate = (yyyymmddStr: string | null) =>
     yyyymmddStr && yyyymmddStr.length === 8
         ? `${yyyymmddStr.slice(0, 4)}-${yyyymmddStr.slice(4, 6)}-${yyyymmddStr.slice(6, 8)}`
         : "";
@@ -28,8 +28,8 @@ export const defaultDTO: StudyDTO = {
     getDbCohortMethodDataArgs: {
         studyPeriods: [
             {
-                studyStartDate: yyyymmdd(new Date(new Date().getFullYear(), 0, 1)),
-                studyEndDate: yyyymmdd(new Date()),
+                studyStartDate: null,
+                studyEndDate: null,
             },
         ],
         maxCohortSize: 0,

@@ -1,4 +1,4 @@
-import { StudyDTO } from "@/type/dtoBuilderType";
+import { StudyDTO } from "@/types/dtoBuilderType";
 import { TextInput } from "./primitive";
 import { useStore } from "@/stores/StoreProvider";
 

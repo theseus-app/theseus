@@ -1,6 +1,6 @@
 import { fromHtmlDate, toHtmlDate } from "@/utils/dtoBuilderHelper";
 
-export default function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export default function DateInput({ value, onChange }: { value: string | null; onChange: (v: string) => void }) {
     return (
         <input
             type="date"

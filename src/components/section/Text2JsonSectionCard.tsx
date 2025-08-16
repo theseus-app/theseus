@@ -11,7 +11,6 @@ function Text2JsonSectionCardInner() {
 
     // 입력/상태
     const [text, setText] = useState<string>("");
-    const [fileName, setFileName] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,17 +21,9 @@ function Text2JsonSectionCardInner() {
     const currentSpec =
         typeof study?.jsonPretty === "string" ? study.jsonPretty : "";
 
-    const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0];
-        if (!f) return;
-        setFileName(f.name);
-        const txt = await f.text();
-        setText(txt);
-    };
-
     const onConvert = async () => {
         if (!text.trim()) {
-            alert("변환할 텍스트를 입력하거나 파일을 선택해줘!");
+            alert("변환할 텍스트를 입력해주세요");
             return;
         }
         setLoading(true);
@@ -69,50 +60,22 @@ function Text2JsonSectionCardInner() {
         }
     };
 
-    const onCopyUpdated = async () => {
-        await copyToClipboard(updatedSpec);
-    };
-
-    const onApply = () => {
-        if (!updatedSpec) {
-            alert("먼저 텍스트를 JSON으로 변환해줘!");
-            return;
-        }
-        if (typeof (study as any)?.applyAnalysisSpec === "function") {
-            (study as any).applyAnalysisSpec(updatedSpec);
-            alert("UI에 적용 완료!");
-        } else if ("setJsonPretty" in study && typeof (study as any).setJsonPretty === "function") {
-            (study as any).setJsonPretty(updatedSpec);
-            alert("jsonPretty만 갱신했어. 전체 UI 반영 로직은 study.applyAnalysisSpec에서 구현해줘!");
-        } else {
-            alert("study.applyAnalysisSpec(updatedSpec)를 구현해줘!");
-        }
-    };
-
     return (
-        <SectionCard title="Text → ATLAS JSON" topGroup>
-            <Field title="Source Text (paper snippet or your notes)">
-                <textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="논문/노트 텍스트를 붙여넣기…"
-                    className="w-full h-40 rounded-xl border p-3 text-sm"
-                />
-                <div className="mt-2 flex items-center gap-2">
-                    {fileName && <span className="text-xs text-gray-600">Selected: {fileName}</span>}
-                </div>
-                <div className="flex">
-                    <button
-                        className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
-                        onClick={onConvert}
-                        disabled={loading || !text.trim()}
-                    >
-                        {loading ? "Converting..." : "Convert text → JSON"}
-                    </button>
-                </div>
-
-            </Field>
-
+        <Field title="Generate Study Settings from Free Text" label="Paste free text from a paper or your study design. We’ll compare it with the previous version so you can select changes to apply to the UI.">
+            <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="w-full h-40 rounded-xl border p-3 text-sm"
+            />
+            <div className="flex">
+                <button
+                    className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
+                    onClick={onConvert}
+                    disabled={loading || !text.trim()}
+                >
+                    {loading ? "Converting..." : "Convert text → JSON"}
+                </button>
+            </div>
             {description && (
                 <Field title="How this spec was derived (LLM description)">
                     <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-48 whitespace-pre-wrap">
@@ -123,28 +86,7 @@ function Text2JsonSectionCardInner() {
 
             {updatedSpec && (
                 <>
-                    <Field title="Updated Analysis Specifications (JSON)">
-                        <div className="mb-2 flex items-center justify-end gap-2">
-                            <button
-                                className="px-3 py-1.5 rounded-[4px] border-[2px] border-gray-400 text-black cursor-pointer"
-                                onClick={onCopyUpdated}
-                            >
-                                Copy Updated JSON
-                            </button>
-                            <button
-                                className="px-3 py-1.5 rounded-[4px] bg-primary text-white cursor-pointer"
-                                onClick={onApply}
-                                title="전체 UI 상태를 이 JSON으로 교체"
-                            >
-                                Apply to UI (overwrite)
-                            </button>
-                        </div>
-                        <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-64">
-                            {updatedSpec}
-                        </pre>
-                    </Field>
-
-                    {/* ✅ 여기서 병합 카드 연결 */}
+                    {/* 여기서 병합 카드 연결 */}
                     <JsonMergeSectionCard
                         nextJson={updatedSpec}
                         title="Review & Merge with Current UI"
@@ -157,7 +99,9 @@ function Text2JsonSectionCardInner() {
             )}
 
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        </SectionCard>
+        </Field>
+
+
     );
 }
 

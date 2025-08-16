@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="px-20 [@media(min-width:550px)]:px-[20px]">
+      <body className="px-20 xs:px-5">
         <StoreProvider>
           {children}
         </StoreProvider>

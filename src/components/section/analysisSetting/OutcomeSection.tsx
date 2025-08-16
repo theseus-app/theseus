@@ -1,6 +1,6 @@
 import { Field, NumInput, SectionCard, Select, YesNoToggle } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
-import { CvType, ModelType, NoiseLevel } from "@/type/dtoBuilderType";
+import { CvType, ModelType, NoiseLevel } from "@/types/dtoBuilderType";
 import { observer } from "mobx-react-lite";
 
 function OutcomeSection() {

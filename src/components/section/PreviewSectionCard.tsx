@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Field, SectionCard } from "@/components/primitive";
+import { Field } from "@/components/primitive";
 import copyToClipboard from "@/utils/copyToClipboard";
 import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
@@ -26,30 +26,17 @@ function PreviewSectionCardView(props: {
     } = props;
 
     return (
-        <SectionCard title="Preview & Export" topGroup>
-            <Field title="Your Selected JSON">
-                <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-64">
-                    {jsonPretty}
-                </pre>
-
-                <div className="flex gap-2 items-center">
-                    <button
-                        className="px-4 py-2 rounded-[4px] border-[2px] border-gray-400 text-black cursor-pointer"
-                        onClick={onCopyJson}
-                    >
-                        Copy JSON
-                    </button>
-
-                    <button
-                        className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
-                        onClick={onConvert}
-                        disabled={loading || !jsonPretty}
-                        title="Convert ATLAS spec JSON to Strategus R"
-                    >
-                        {loading ? "Converting..." : "Convert to Strategus Code"}
-                    </button>
-                </div>
-            </Field>
+        <Field title="LLM-powered Strategus R code generated" label="Uses an LLM to convert the current UI into Strategus-ready R code for analysis.">
+            <div className="flex gap-2 items-center">
+                <button
+                    className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
+                    onClick={onConvert}
+                    disabled={loading || !jsonPretty}
+                    title="Convert ATLAS spec JSON to Strategus R"
+                >
+                    {loading ? "Converting..." : "Convert to Strategus Code"}
+                </button>
+            </div>
 
             {strategusScript && (
                 <Field title="LLM-generated Strategus Code">
@@ -69,7 +56,7 @@ function PreviewSectionCardView(props: {
             )}
 
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        </SectionCard>
+        </Field>
     );
 }
 

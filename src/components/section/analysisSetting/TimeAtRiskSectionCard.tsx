@@ -1,6 +1,6 @@
 import { ArrayHeader, Field, NumInput, RowCard, SectionCard, Select, TextInput } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
-import { Anchor } from "@/type/dtoBuilderType";
+import { Anchor } from "@/types/dtoBuilderType";
 import { observer } from "mobx-react-lite";
 
 function TimeAtRiskSectionCard() {

@@ -14,6 +14,7 @@
   --color-primary: #337ab7;
   --color-gray: #333333;
   --color-lightgray: #dddddd;
+  --breakpoint-xs: 550px;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,6 +1,6 @@
 import { ArrayHeader, Field, NumInput, RowCard, SectionCard, Select, TextInput, YesNoToggle } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
-import { StudyDTO, CaliperScale, BaseSelection, CvType, NoiseLevel, PsSetting } from "@/type/dtoBuilderType";
+import { StudyDTO, CaliperScale, BaseSelection, CvType, NoiseLevel, PsSetting } from "@/types/dtoBuilderType";
 import { observer } from "mobx-react-lite";
 import { useMemo, useState, useEffect } from "react";
 

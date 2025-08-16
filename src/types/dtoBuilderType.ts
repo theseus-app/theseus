@@ -54,7 +54,7 @@ export type StudyDTO = {
         conceptsToExclude: { id: number | null; name: string }[];
     };
     getDbCohortMethodDataArgs: {
-        studyPeriods: { studyStartDate: string; studyEndDate: string }[]; // yyyyMMdd
+        studyPeriods: { studyStartDate: string|null; studyEndDate: string|null }[]; // yyyyMMdd
         maxCohortSize: number; // 0 = no limit
     };
     createStudyPopArgs: {

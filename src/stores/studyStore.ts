@@ -1,11 +1,13 @@
 // src/stores/studyStore.ts
 import { makeAutoObservable } from "mobx";
-import type { StudyDTO } from "@/type/dtoBuilderType";
+import type { StudyDTO } from "@/types/dtoBuilderType";
 import { defaultDTO } from "@/utils/dtoBuilderHelper";
 
 export class StudyStore {
     dto: StudyDTO = structuredClone(defaultDTO);
     open = false;
+    textuiModalOpen = false;
+    strategusModalOpen = false;
 
     constructor() {
         makeAutoObservable(this, {}, { autoBind: true });
@@ -22,6 +24,14 @@ export class StudyStore {
 
     setOpen(v: boolean) {
         this.open = v;
+    }
+
+    setTextuiModalOpen(v: boolean) {
+        this.textuiModalOpen = v;
+    }
+
+    setStrategusModalOpen(v: boolean) {
+        this.strategusModalOpen = v;
     }
 
     reset() {
