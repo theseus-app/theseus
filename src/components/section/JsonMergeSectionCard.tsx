@@ -254,7 +254,7 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
 
     const applyMerge = () => {
         if (!prevObj || typeof prevObj !== "object") {
-            alert("현재 JSON이 올바르지 않습니다.");
+            alert("Your json format is not correct.");
             return;
         }
         const base = JSON.parse(JSON.stringify(prevObj)); // deep clone
@@ -269,9 +269,9 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
         try {
             study.setDto(base); // StudyDTO 구조라고 가정 (형이 다르면 store setDto 로직 조정)
             onApplied?.();
-            alert("병합 적용 완료!");
+            alert("Merge Completed");
         } catch (e: any) {
-            alert("병합 적용 실패: " + (e?.message ?? "unknown"));
+            alert("Merge Failed: " + (e?.message ?? "unknown"));
         }
     };
 
@@ -284,14 +284,12 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
                     <button
                         className="px-3 py-1.5 rounded-[4px] border-[2px] border-gray-400 text-black cursor-pointer"
                         onClick={() => allTo("old")}
-                        title="모든 필드를 이전값으로 선택"
                     >
                         Select All: Old
                     </button>
                     <button
                         className="px-3 py-1.5 rounded-[4px] border-[2px] border-gray-400 text-black cursor-pointer"
                         onClick={() => allTo("new")}
-                        title="모든 필드를 새값으로 선택"
                     >
                         Select All: New
                     </button>
@@ -317,7 +315,7 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
 
                     <div className="max-h-80 overflow-auto">
                         {visibleRows.length === 0 ? (
-                            <div className="p-4 text-sm text-gray-600">표시할 항목이 없습니다.</div>
+                            <div className="p-4 text-sm text-gray-600">No items to display.</div>
                         ) : (
                             visibleRows.map((r) => {
                                 const selected = choice[r.path] ?? (r.isDiff ? "new" : "old");
