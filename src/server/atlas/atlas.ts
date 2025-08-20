@@ -70,7 +70,6 @@ Description
         // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0
     });
 
     const content = completion.choices[0]?.message?.content?.trim() ?? "";
@@ -120,7 +119,6 @@ ${template}
         // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0
     });
 
     const content = completion.choices[0]?.message?.content?.trim() ?? "";
