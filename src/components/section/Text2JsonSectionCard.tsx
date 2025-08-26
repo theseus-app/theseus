@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { SectionCard, Field } from "@/components/primitive";
-import copyToClipboard from "@/utils/copyToClipboard";
+import { Field } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
-import JsonMergeSectionCard from "@/components/section/JsonMergeSectionCard"; // ✅ 병합 카드 import
+import JsonMergeSectionCard from "@/components/section/JsonMergeSectionCard";
 
 function Text2JsonSectionCardInner() {
-    const { study } = useStore();
+    const { study, user } = useStore();
+    const apiKey = user.apiKey
 
     // 입력/상태
     const [text, setText] = useState<string>("");
@@ -34,7 +34,7 @@ function Text2JsonSectionCardInner() {
         try {
             const res = await fetch("/api/atlas/text2json", {
                 method: "POST",
-                headers: { "content-type": "application/json" },
+                headers: { "content-type": "application/json", "x-api-key": apiKey ?? "" },
                 body: JSON.stringify({
                     text,
                     currentAnalysisSpecifications: currentSpec,

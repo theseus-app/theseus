@@ -67,6 +67,9 @@ function PreviewSectionCardContainer() {
     const [error, setError] = useState<string | null>(null); // 3
     const [strategusScript, setStrategusScript] = useState<string>(""); // 4
 
+    const { user } = useStore()
+    const apiKey = user.apiKey
+
     // store에서 읽는 값도 미리 안전하게 기본값 처리
     const jsonPretty = typeof study?.jsonPretty === "string" ? study.jsonPretty : "";
 
@@ -85,7 +88,10 @@ function PreviewSectionCardContainer() {
         try {
             const res = await fetch("/api/atlas/json2strategus", {
                 method: "POST",
-                headers: { "content-type": "application/json" },
+                headers: {
+                    "content-type": "application/json",
+                    "x-api-key": apiKey ?? ""
+                },
                 body: JSON.stringify({ analysisSpecifications: jsonPretty }),
             });
             if (!res.ok) {

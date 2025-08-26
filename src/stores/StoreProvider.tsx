@@ -1,10 +1,11 @@
 "use client";
-
 import React, { createContext, useContext, useRef } from "react";
 import { StudyStore } from "./studyStore";
+import { UserStore } from "./userStore";
 
 type RootStore = {
     study: StudyStore;
+    user: UserStore;
 };
 
 const StoreContext = createContext<RootStore | null>(null);
@@ -16,6 +17,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (!storeRef.current) {
         storeRef.current = {
             study: new StudyStore(),
+            user: new UserStore()
         };
     }
 
