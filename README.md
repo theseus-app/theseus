@@ -1,5 +1,5 @@
 # THESEUS: An LLM-powered Software Bridging the OHDSI Ecosystem OMOP-CDM Observational Studies
-<img width="3072" height="3072" alt="Theseus" src="https://github.com/user-attachments/assets/362e9ace-f352-4620-9ddb-64876ec37ecb" />
+<img width="480" height="480" alt="Theseus" src="https://github.com/user-attachments/assets/362e9ace-f352-4620-9ddb-64876ec37ecb" />
 For reproducible observational studies using the Observational Medical Outcomes Partnership Common Data Model (OMOP-CDM), the Observational Health Data Sciences and Informatics (OHDSI) community provides an open-source ecosystem. However, network studies often require R-based execution, creating barriers for researchers without coding expertise. To address this, we developed THESEUS, an LLM-powered GUI software bridging the OHDSI ecosystem for observational studies. THESEUS integrates two LLM modules: (1) **Text-to-JSON**: Convert free-text to UI settings and (2) **JSON-to-Strategus**: Convert UI settings to R scripts.
 
 ## Table of Contents
@@ -27,6 +27,7 @@ Another LLM-based module, called *JSON-to-Strategus*, transforms the JSON repres
 
 ## Demo
 <img width="791" height="411" alt="image" src="https://github.com/user-attachments/assets/e6ac4662-f65e-4164-9321-45a8dfef1f92" />
+
 - You can test THESEUS by entering your **OpenAI API key**.  
 - We are using **ChatGPT 4.1** as the LLM engine.  
 - Prototype: [https://theseus2.vercel.app/](https://theseus2.vercel.app/)  
