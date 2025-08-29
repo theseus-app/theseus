@@ -31,6 +31,7 @@ Another LLM-based module, called *JSON-to-Strategus*, transforms the JSON repres
 <div align="center">
  <img width="791" height="411" alt="image" src="https://github.com/user-attachments/assets/e6ac4662-f65e-4164-9321-45a8dfef1f92" />
 </div>
+
 - You can test THESEUS by entering your **OpenAI API key**.  
 - We are using **ChatGPT 4.1** as the LLM engine.  
 - Prototype: [https://theseus2.vercel.app/](https://theseus2.vercel.app/)  
