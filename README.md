@@ -2,7 +2,7 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/362e9ace-f352-4620-9ddb-64876ec37ecb" alt="Theseus" width="360" height="360"/>
 </div>
-For reproducible observational studies using the Observational Medical Outcomes Partnership Common Data Model (OMOP-CDM), the Observational Health Data Sciences and Informatics (OHDSI) community provides an open-source ecosystem. However, network studies often require R-based execution, creating barriers for researchers without coding expertise. To address this, we developed THESEUS, an LLM-powered GUI software bridging the OHDSI ecosystem for observational studies. THESEUS integrates two LLM modules: (1) **Text-to-JSON**: Convert free-text to UI settings and (2) **JSON-to-Strategus**: Convert UI settings to R scripts.
+For reproducible observational studies using the Observational Medical Outcomes Partnership Common Data Model (OMOP-CDM), the Observational Health Data Sciences and Informatics (OHDSI) community provides an open-source ecosystem. However, network studies often require R-based execution, creating barriers for researchers without coding expertise. To address this, we developed THESEUS, an LLM-powered GUI software bridging the OHDSI ecosystem for observational studies. THESEUS integrates two LLM modules: (1) Text-to-JSON: Convert free-text to UI settings and (2) JSON-to-Strategus: Convert UI settings to R scripts.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ For reproducible observational studies using the Observational Medical Outcomes 
 ## Features
 
 1. **GUI Tool**  
-We developed a prototype GUI that resembles the "population-level estimation" tab of ATLAS. It allows users to configure study designs through manual clicks.
+We developed a prototype GUI that resembles the "population-level estimation" tab of [ATLAS](https://atlas-demo.ohdsi.org/#/estimation). It allows users to configure study designs through manual clicks.
 
 2. **Converting Free-text to UI Settings**  
 An LLM-based module, called *Text-to-JSON*, converts free-text descriptions of study designs into a predefined JSON format. Based on the generated JSON, the system allows users to compare the proposed settings with the existing GUI configurations and selectively adopt changes.
@@ -35,7 +35,23 @@ Another LLM-based module, called *JSON-to-Strategus*, transforms the JSON repres
 - You can test THESEUS by entering your **OpenAI API key**.  
 - We are using **ChatGPT 4.1** as the LLM engine.  
 - Prototype: [https://theseus2.vercel.app/](https://theseus2.vercel.app/)  
-- Demo video: [https://youtu.be/tfvWasqaWbY](https://youtu.be/tfvWasqaWbY)  
+- Demo video: [https://youtu.be/tfvWasqaWbY](https://youtu.be/tfvWasqaWbY)
+
+###Demo Workflow (Key Steps)
+1. Enter OpenAI API Key
+- Required to enable LLM-based modules.
+2. Set up Cohort Settings
+- Prototype requires manual input of cohort IDs (use IDs from [Atlas demo site](https://atlas-demo.ohdsi.org/#/cohortdefinitions)).
+3. Configure Analysis Settings
+- Two options:
+  - Manually click items (like ATLAS), or
+  - Convert free-text study descriptions → structured UI settings (via Text-to-JSON).
+4. Export to Strategus R Scripts
+- Once study design is complete, export all configurations → executable Strategus R script.
+5. Run in Strategus Template
+- Clone/download [Strategus study repo template](https://github.com/ohdsi-studies/StrategusStudyRepoTemplate).
+- Replace [createStrategusAnalysisSpecification.R](https://github.com/ohdsi-studies/StrategusStudyRepoTemplate/blob/main/CreateStrategusAnalysisSpecification.R) contents with THESEUS-generated script.
+- Execute script → generates analysis specification JSON file, which can be shared with collaborators.
 
 ## Tech Stack
 
