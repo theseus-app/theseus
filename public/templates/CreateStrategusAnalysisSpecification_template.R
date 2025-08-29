@@ -7,6 +7,7 @@
 # This help page also contains links to the corresponding HADES package that
 # further details.
 # ##############################################################################
+renv::restore(prompt = FALSE) # must call "renv::restore()" to install all of the necessary R libraries
 library(dplyr)
 library(Strategus)
 
@@ -363,6 +364,14 @@ analysisSpecifications <- Strategus::createEmptyAnalysisSpecificiations() |>
   Strategus::addModuleSpecifications(cohortGeneratorModuleSpecifications) |>
   Strategus::addModuleSpecifications(cohortDiagnosticsModuleSpecifications) |>
   Strategus::addModuleSpecifications(cohortMethodModuleSpecifications)
+
+# Path to save file
+outPath <- file.path("inst", "studyName")
+outFile <- file.path(outPath, "studyNameAnalysisSpecification.json")
+ 
+if (!dir.exists(outPath)) {
+  dir.create(outPath, recursive = TRUE)
+}
 
 ParallelLogger::saveSettingsToJson(
   analysisSpecifications, 
