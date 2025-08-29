@@ -23,7 +23,7 @@ function Text2JsonSectionCardInner() {
 
     const onConvert = async () => {
         if (!text.trim()) {
-            alert("변환할 텍스트를 입력해주세요");
+            alert("Please enter the text");
             return;
         }
         setLoading(true);
@@ -86,13 +86,11 @@ function Text2JsonSectionCardInner() {
 
             {updatedSpec && (
                 <>
-                    {/* 여기서 병합 카드 연결 */}
                     <JsonMergeSectionCard
                         nextJson={updatedSpec}
                         title="Review & Merge with Current UI"
                         onApplied={() => {
-                            // 병합 적용 후 후처리(선택): 새 JSON 반영 결과 확인 토스트/리프레시 등
-                            // 예: alert("병합이 적용되었습니다!");
+                            //ex: alert()
                         }}
                     />
                 </>

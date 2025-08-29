@@ -60,7 +60,7 @@ function PreviewSectionCardView(props: {
     );
 }
 
-/** 컨테이너 컴포넌트: 훅은 여기서만, 순서/개수 고정 */
+/** Container Component (call hook here) */
 function PreviewSectionCardContainer() {
     const { study } = useStore(); // 1
     const [loading, setLoading] = useState(false); // 2
@@ -70,7 +70,6 @@ function PreviewSectionCardContainer() {
     const { user } = useStore()
     const apiKey = user.apiKey
 
-    // store에서 읽는 값도 미리 안전하게 기본값 처리
     const jsonPretty = typeof study?.jsonPretty === "string" ? study.jsonPretty : "";
 
     const onCopyJson = async () => {
@@ -120,6 +119,6 @@ function PreviewSectionCardContainer() {
     );
 }
 
-// observer는 컨테이너에만 적용
+// apply observer only 'container'
 const PreviewSectionCard = observer(PreviewSectionCardContainer);
 export default PreviewSectionCard;

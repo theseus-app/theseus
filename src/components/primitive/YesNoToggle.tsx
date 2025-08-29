@@ -11,7 +11,7 @@ export default function YesNoToggle({
         <div className="flex items-center gap-3">
             {label && <span className="select-none text-sm">{label}</span>}
             <div className="flex gap-2">
-                {/* YES 버튼 */}
+                {/* YES button */}
                 <button
                     type="button"
                     className={`px-4 py-1.5 rounded-[4px] border text-sm font-medium ${checked
@@ -23,7 +23,7 @@ export default function YesNoToggle({
                     Yes
                 </button>
 
-                {/* NO 버튼 */}
+                {/* NO button */}
                 <button
                     type="button"
                     className={`px-4 py-1.5 rounded-[4px] border text-sm font-medium ${!checked

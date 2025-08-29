@@ -70,14 +70,12 @@ Description
 </Output Style>`;
 
     const completion = await client.chat.completions.create({
-        // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
     });
 
     const content = completion.choices[0]?.message?.content?.trim() ?? "";
 
-    // Split on first '---'
     let updatedSpecRaw = content;
     let description = "";
     const splitMatch = content.match(/([\s\S]*?)\n?---\n?([\s\S]*)/);
@@ -121,7 +119,6 @@ ${template}
 </Template>`;
 
     const completion = await client.chat.completions.create({
-        // TODO: replace with an actually available model in your account
         model: "gpt-5-mini-2025-08-07",
         messages: [{ role: "user", content: prompt }],
     });

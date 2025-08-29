@@ -10,7 +10,6 @@ export type PathTitleRule = {
 const escapeRegex = (s: string) =>
     s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** '*' 와일드카드를 숫자 캡처 (\\d+)로 치환해 RegExp 생성 */
 const patternToRegExp = (pattern: string) => {
     const parts = pattern.split("*").map(escapeRegex);
     // e.g. "a.*.b.*.c" -> ["a.", ".b.", ".c"] → join("(\\d+)")

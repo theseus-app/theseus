@@ -94,7 +94,7 @@ function OutcomeSection() {
                                 <YesNoToggle checked={isRegOn} onChange={toggleRegularization} />
                             </Field>
 
-                            {/* PRIOR / CONTROL: 정규화 ON일 때만 노출 */}
+                            {/* PRIOR / CONTROL: Show only regularization 'on' */}
                             {isRegOn && dto.fitOutcomeModelArgs.prior && dto.fitOutcomeModelArgs.control && (
                                 <>
                                     <SectionCard title="Control Settings">

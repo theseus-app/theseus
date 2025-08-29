@@ -11,7 +11,7 @@ function PropensitySectionCard() {
 
     const psa = dto.propensityScoreAdjustment;
 
-    // 정규화 토글은 UI 상태로만 관리 (DTO에는 useRegularization 없음)
+    // only managed by UI (no info in DTO)
     const isRegOnFromDto = useMemo(
         () => Boolean(psa.createPsArgs.prior && psa.createPsArgs.control),
         [psa.createPsArgs.prior, psa.createPsArgs.control]
@@ -19,7 +19,6 @@ function PropensitySectionCard() {
     const [useRegularization, setUseRegularization] = useState<boolean>(isRegOnFromDto);
 
     useEffect(() => {
-        // 외부 변경이 있을 수 있으니 동기화
         setUseRegularization(isRegOnFromDto);
     }, [isRegOnFromDto]);
 
@@ -250,7 +249,7 @@ function PropensitySectionCard() {
                     />
                 </Field>
 
-                {/* Use regularization (UI 상태) */}
+                {/* Use regularization (UI state) */}
                 <Field
                     title="Use regularization"
                     label="Use regularization when fitting the propensity model?"

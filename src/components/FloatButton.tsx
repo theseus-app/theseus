@@ -8,7 +8,7 @@ function FloatButton() {
     const { study } = useStore();
     const { strategusModalOpen, textuiModalOpen, setStrategusModalOpen, setTextuiModalOpen } = study;
 
-    // 모달 열려있으면 버튼 감춤
+    // hide button if modal open
     if (strategusModalOpen || textuiModalOpen) return null;
 
     const baseBtn =

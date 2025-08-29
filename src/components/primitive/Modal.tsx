@@ -2,14 +2,13 @@ export default function Modal({
     open,
     onClose,
     children,
-    keepMounted = true, // ← 닫혀도 DOM에 남김(기본)
+    keepMounted = true, //keep mount
 }: {
     open: boolean;
     onClose: () => void;
     children: React.ReactNode;
     keepMounted?: boolean;
 }) {
-    //keepMounted = false이면 날림
     if (!keepMounted && !open) return null;
 
     return (

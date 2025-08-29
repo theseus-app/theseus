@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Invalid body" }, { status: 400 });
     }
 
-    // public 파일을 절대 URL로 읽기 위해 origin 전달
     const origin = req.nextUrl.origin;
 
 
