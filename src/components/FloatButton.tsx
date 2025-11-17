@@ -12,7 +12,7 @@ function FloatButton() {
     if (strategusModalOpen || textuiModalOpen) return null;
 
     const baseBtn =
-        "rounded-full flex items-center gap-2 px-4 py-2 text-white border-2 border-white " +
+        "rounded-full flex items-center gap-2 px-4 py-2 text-white border-2 border-white" +
         "shadow-xl hover:shadow-2xl active:shadow-md transition-all duration-200 " +
         "transform-gpu hover:-translate-y-0.5 focus-visible:outline-none " +
         "focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2";
@@ -25,7 +25,7 @@ function FloatButton() {
                 className={`bg-primary ${baseBtn}`}
             >
                 <SparkleIcon width={24} height={24} />
-                <span className="font-medium">Text to UI Settings</span>
+                <span className="font-medium">Text to UI</span>
             </button>
 
             <button
@@ -34,7 +34,7 @@ function FloatButton() {
                 className={`bg-primary ${baseBtn}`}
             >
                 <MagicWandIcon width={24} height={24} />
-                <span className="font-medium">Generate Strategus R code</span>
+                <span className="font-medium">Generate Strategus</span>
             </button>
         </div>
     );

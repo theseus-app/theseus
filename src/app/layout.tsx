@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="px-20 xs:px-5">
+      <body className="px-2">
         <StoreProvider>
           {children}
         </StoreProvider>

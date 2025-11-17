@@ -10,14 +10,14 @@ import ApiInput from "@/components/ApiInput";
 
 function StudyBuilderPage() {
   return (
-    <div className="flex flex-col max-w-[1280px] mx-auto mt-10">
+    <div className="w-full flex flex-col max-w-[1280px] mx-auto mt-10">
       {/* Api Input */}
       <ApiInput />
       {/* <Header /> */}
       <main className="min-h-screen bg-gray-100 my-15">
         {/* name */}
         <NameSection />
-        <div className="pt-6 pb-12 space-y-8 px-4">
+        <div className="pt-6 pb-12 space-y-8 px-2">
           {/* Comparisons */}
           <ComparisonSectionCard />
 
@@ -25,14 +25,15 @@ function StudyBuilderPage() {
           <AnalysisSectionCard />
         </div>
 
-        {/* Float Button */}
-        <FloatButton />
 
         {/* Modal */}
         <TextuiModal />
         <StrategusModal />
 
       </main>
+      {/* Float Button */}
+      <FloatButton />
+
     </div>
   );
 }
