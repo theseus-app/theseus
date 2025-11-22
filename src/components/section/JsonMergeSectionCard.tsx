@@ -208,6 +208,7 @@ type JsonMergeSectionCardProps = {
 
 function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }: JsonMergeSectionCardProps) {
     const { study } = useStore();
+    const {setTextuiModalOpen} = study
     const prevJsonStr = study.jsonPretty;
 
     const prevObj = useMemo(() => safeParse(prevJsonStr), [prevJsonStr]);
@@ -270,6 +271,7 @@ function JsonMergeSectionCardInner({ nextJson, title = "Merge JSON", onApplied }
             study.setDto(base); // StudyDTO 구조라고 가정 (형이 다르면 store setDto 로직 조정)
             onApplied?.();
             alert("Merge Completed");
+            setTextuiModalOpen(false)
         } catch (e: any) {
             alert("Merge Failed: " + (e?.message ?? "unknown"));
         }

@@ -34,7 +34,7 @@ export async function text2json(
     opts?: { origin?: string; cache?: RequestCache; apiKey?: string } // <-- 서버 라우트에서 origin 전달 권장
 ): Promise<{ updatedSpec: string; description: string }> {
 
-    const client = new OpenAI({ apiKey: opts?.apiKey })
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     // public/templates/customAtlasTemplate_v1.3.0_annotated.txt
     const analysisSpecificationsTemplate = await readPublicText(
@@ -93,9 +93,9 @@ Description
  */
 export async function json2strategus(
     analysisSpecifications: string,
-    opts?: { origin?: string; cache?: RequestCache; apiKey: string }
+    opts?: { origin?: string; cache?: RequestCache; apiKey?: string }
 ): Promise<string> {
-    const client = new OpenAI({ apiKey: opts?.apiKey })
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     // public/templates/CreateStrategusAnalysisSpecification_template.R
     const template = await readPublicText(

@@ -11,7 +11,7 @@ export default function SectionCard({
     noToggle?: boolean;
     topGroup?: boolean;
 }) {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(topGroup?true:false);
     const collapsible = !noToggle;
 
     return (

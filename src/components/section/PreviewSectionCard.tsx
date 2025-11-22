@@ -5,6 +5,8 @@ import copyToClipboard from "@/utils/copyToClipboard";
 import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /** 프레젠테이션 컴포넌트: 훅 없음 */
 function PreviewSectionCardView(props: {
     jsonPretty: string;
@@ -14,6 +16,8 @@ function PreviewSectionCardView(props: {
     onCopyJson: () => void;
     onConvert: () => void;
     onCopyStrategus: () => void;
+    onLoadExample: () => void;
+
 }) {
     const {
         jsonPretty,
@@ -23,11 +27,19 @@ function PreviewSectionCardView(props: {
         onCopyJson,
         onConvert,
         onCopyStrategus,
+        onLoadExample
     } = props;
 
     return (
         <Field title="LLM-powered Strategus R code generated" label="Uses an LLM to convert the current UI into Strategus-ready R code for analysis.">
             <div className="flex gap-2 items-center">
+                <button
+                    className="px-4 py-2 rounded-[4px] bg-gray-200 text-black cursor-pointer disabled:opacity-60"
+                    onClick={onLoadExample}
+                    disabled={loading}
+                >
+                    Load Example
+                </button>
                 <button
                     className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
                     onClick={onConvert}
@@ -68,8 +80,7 @@ function PreviewSectionCardContainer() {
     const [strategusScript, setStrategusScript] = useState<string>(""); // 4
 
     const { user } = useStore()
-    const apiKey = user.apiKey
-
+    // const apiKey = user.apiKey
     const jsonPretty = typeof study?.jsonPretty === "string" ? study.jsonPretty : "";
 
     const onCopyJson = async () => {
@@ -81,6 +92,32 @@ function PreviewSectionCardContainer() {
 
     };
 
+    const loadExampleScript = async () => {
+        try {
+            setError(null);
+            setLoading(true);
+
+            const res = await fetch(
+                "/examples/TICAGRELOR_CLOPIDOGREL_SCRIPTS.R"
+            );
+
+            if (!res.ok) {
+                const t = await res.text().catch(() => "");
+                throw new Error(`Example script ${res.status}: ${t}`);
+            }
+
+            const scriptText = await res.text();
+
+            await sleep(3000);
+
+            setStrategusScript(scriptText);
+        } catch (e: any) {
+            setError(e?.message ?? "Failed to load example Strategus script");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const onConvert = async () => {
         setLoading(true);
         setError(null);
@@ -89,7 +126,7 @@ function PreviewSectionCardContainer() {
                 method: "POST",
                 headers: {
                     "content-type": "application/json",
-                    "x-api-key": apiKey ?? ""
+                    "x-api-key": process.env.OPENAI_API_KEY ?? ""
                 },
                 body: JSON.stringify({ analysisSpecifications: jsonPretty }),
             });
@@ -115,6 +152,7 @@ function PreviewSectionCardContainer() {
             onCopyJson={onCopyJson}
             onConvert={onConvert}
             onCopyStrategus={onCopyStrategus}
+            onLoadExample={loadExampleScript}
         />
     );
 }
