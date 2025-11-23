@@ -1,4 +1,7 @@
 import OpenAI from "openai";
+import { readFile } from "fs/promises";
+import { join } from "path";
+
 
 /** Remove code fences (```lang ... ```) from LLM outputs. */
 export function stripCodeFences(text: string): string {
@@ -17,12 +20,13 @@ function resolveOrigin(explicit?: string) {
 }
 
 /** Fetch text file from /public (e.g., "/templates/foo.txt") */
-async function readPublicText(relPath: string, opts?: { origin?: string; cache?: RequestCache }) {
-    const origin = resolveOrigin(opts?.origin);
-    const url = new URL(relPath, origin).toString();
-    const res = await fetch(url, { cache: opts?.cache ?? "force-cache" });
-    if (!res.ok) throw new Error(`Failed to fetch ${relPath}: ${res.status} ${res.statusText}`);
-    return res.text();
+async function readPublicText(relPath: string) {
+    // relPath: "/templates/customAtlasTemplate_v1.3.0_annotated.txt" 같은 형태 가정
+    const normalized = relPath.replace(/^\/+/, ""); // 앞의 / 제거
+    const filePath = join(process.cwd(), "public", normalized);
+    // => <project-root>/public/templates/...
+
+    return readFile(filePath, "utf8");
 }
 
 /**
@@ -38,8 +42,7 @@ export async function text2json(
 
     // public/templates/customAtlasTemplate_v1.3.0_annotated.txt
     const analysisSpecificationsTemplate = await readPublicText(
-        "/templates/customAtlasTemplate_v1.3.0_annotated.txt",
-        opts
+        "/templates/customAtlasTemplate_v1.3.0_annotated.txt"
     );
 
     const prompt = `<Instruction>
@@ -99,8 +102,7 @@ export async function json2strategus(
 
     // public/templates/CreateStrategusAnalysisSpecification_template.R
     const template = await readPublicText(
-        "/templates/CreateStrategusAnalysisSpecification_template.R",
-        opts
+        "/templates/CreateStrategusAnalysisSpecification_template.R"
     );
 
     const prompt = `<Instruction>
