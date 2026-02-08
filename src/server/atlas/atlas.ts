@@ -128,3 +128,44 @@ ${template}
     const content = completion.choices[0]?.message?.content?.trim() ?? "";
     return stripCodeFences(content);
 }
+
+/**
+ * Debug a failed Strategus R script using LLM.
+ * Takes the original script and error log, returns a fixed script.
+ */
+export async function debugStrategusScript(
+    originalScript: string,
+    errorLog: string,
+): Promise<string> {
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const template = await readPublicText(
+        "/templates/CreateStrategusAnalysisSpecification_template.R"
+    );
+
+    const prompt = `<Instruction>
+The following R script failed to execute. Analyze the error log and fix the script.
+Refer to <Template> for the correct structure and syntax.
+Output only the corrected R script without any additional text.
+</Instruction>
+
+<Template>
+${template}
+</Template>
+
+<Original Script>
+${originalScript}
+</Original Script>
+
+<Error Log>
+${errorLog}
+</Error Log>`;
+
+    const completion = await client.chat.completions.create({
+        model: "gpt-4.1-2025-04-14",
+        messages: [{ role: "user", content: prompt }],
+    });
+
+    const content = completion.choices[0]?.message?.content?.trim() ?? "";
+    return stripCodeFences(content);
+}
