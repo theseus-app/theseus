@@ -28,6 +28,7 @@ function PreviewSectionCardView(props: {
     onBuildJson: () => void;
     onDebug: () => void;
     onCopyGeneratedJson: () => void;
+    onDownloadGeneratedJson: () => void;
     errorLogExpanded: boolean;
     onToggleErrorLog: () => void;
 }) {
@@ -49,6 +50,7 @@ function PreviewSectionCardView(props: {
         onBuildJson,
         onDebug,
         onCopyGeneratedJson,
+        onDownloadGeneratedJson,
         errorLogExpanded,
         onToggleErrorLog,
     } = props;
@@ -134,12 +136,20 @@ function PreviewSectionCardView(props: {
                     <pre className="text-xs bg-gray-900 text-blue-300 rounded-xl p-3 overflow-auto max-h-64 whitespace-pre-wrap">
                         {generatedJson}
                     </pre>
-                    <button
-                        className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
-                        onClick={onCopyGeneratedJson}
-                    >
-                        Copy JSON
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            className="px-4 py-2 rounded-[4px] bg-primary text-white cursor-pointer disabled:opacity-60"
+                            onClick={onCopyGeneratedJson}
+                        >
+                            Copy JSON
+                        </button>
+                        <button
+                            className="px-4 py-2 rounded-[4px] bg-gray-700 text-white cursor-pointer disabled:opacity-60"
+                            onClick={onDownloadGeneratedJson}
+                        >
+                            Download JSON
+                        </button>
+                    </div>
                 </Field>
             )}
 
@@ -178,6 +188,16 @@ function PreviewSectionCardContainer() {
 
     const onCopyGeneratedJson = async () => {
         await copyToClipboard(generatedJson);
+    };
+
+    const onDownloadGeneratedJson = () => {
+        const blob = new Blob([generatedJson], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "analysisSpecification.json";
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     const loadExampleScript = async () => {
@@ -328,6 +348,7 @@ function PreviewSectionCardContainer() {
             onBuildJson={onBuildJson}
             onDebug={onDebug}
             onCopyGeneratedJson={onCopyGeneratedJson}
+            onDownloadGeneratedJson={onDownloadGeneratedJson}
             errorLogExpanded={errorLogExpanded}
             onToggleErrorLog={() => setErrorLogExpanded((v) => !v)}
         />

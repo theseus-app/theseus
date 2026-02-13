@@ -16,9 +16,9 @@ export const toHtmlDate = (yyyymmddStr: string | null) =>
 export const defaultDTO: StudyDTO = {
     name: "",
     cohortDefinitions: {
-        targetCohort: { id: null, name: "" },
-        comparatorCohort: { id: null, name: "" },
-        outcomeCohort: [{ id: null, name: "" }],
+        targetCohort: { id: 1794126, name: "Ticagrelor" },
+        comparatorCohort: { id: 1794132, name: "Clopidogrel" },
+        outcomeCohort: [{ id: 1794131, name: "Acute myocardial infarction events" }],
     },
     negativeControlConceptSet: { id: null, name: "" },
     covariateSelection: {

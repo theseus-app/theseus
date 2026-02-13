@@ -10,6 +10,10 @@ export default function CohortSettingSectionCard() {
 
     return (
         <SectionCard title="Cohort Settings">
+            <p className="text-sm text-gray-500 mb-4">
+                Enter cohort IDs from ATLAS (atlas-demo.ohdsi.org). These IDs are used to fetch cohort definitions when generating the Strategus analysis specification.
+            </p>
+
             {/* Target Cohort */}
             <div>
                 <ArrayHeader title="Target Cohort" />

@@ -1,60 +1,4 @@
-import { execFile } from "child_process";
-import { mkdtemp, writeFile, readFile, rm, readdir } from "fs/promises";
-import { join } from "path";
-import { tmpdir } from "os";
-
-const R_TIMEOUT_MS = 90_000;
-
-/**
- * Discover the renv library path inside json2strategus-core/.
- * The path pattern is: renv/library/{os}/{R-version}/{arch}/
- * We walk the directory tree to find it dynamically.
- */
-async function resolveRenvLibPath(): Promise<string> {
-    const base = join(process.cwd(), "json2strategus-core", "renv", "library");
-    try {
-        const osDirs = await readdir(base);
-        for (const osDir of osDirs) {
-            const osPath = join(base, osDir);
-            const rVersions = await readdir(osPath);
-            for (const rVer of rVersions) {
-                const rVerPath = join(osPath, rVer);
-                const archs = await readdir(rVerPath);
-                for (const arch of archs) {
-                    const libPath = join(rVerPath, arch);
-                    return libPath;
-                }
-            }
-        }
-    } catch {
-        // fall through
-    }
-    throw new Error(
-        "Could not find renv library in json2strategus-core/renv/library/. " +
-        "Run renv::restore() inside json2strategus-core/ first."
-    );
-}
-
-/** Check if `Rscript` binary is available on the system. */
-export async function checkRAvailable(): Promise<boolean> {
-    return new Promise((resolve) => {
-        execFile("Rscript", ["--version"], (err) => {
-            resolve(!err);
-        });
-    });
-}
-
-/**
- * Replace the `outputJsonPath <- ...` line in the R script
- * so the generated JSON goes to our temp directory.
- */
-export function patchOutputPath(script: string, outputPath: string): string {
-    const escaped = outputPath.replace(/\\/g, "/");
-    return script.replace(
-        /^outputJsonPath\s*<-\s*.+$/m,
-        `outputJsonPath <- "${escaped}"`
-    );
-}
+const R_TIMEOUT_MS = 300_000;
 
 export interface ExecRResult {
     json: string;
@@ -62,58 +6,31 @@ export interface ExecRResult {
 }
 
 /**
- * Write an R script to a temp file, execute it via `Rscript`,
+ * Send an R script to the remote Plumber API server for execution
  * and return the generated JSON content.
  *
- * Throws on R execution failure with the stderr/stdout as the error message.
+ * Throws on execution failure with the error log as the message.
  */
 export async function execRscript(scriptContent: string): Promise<ExecRResult> {
-    const available = await checkRAvailable();
-    if (!available) {
+    const plumberUrl = process.env.R_PLUMBER_URL;
+    if (!plumberUrl) {
         throw new Error(
-            "Rscript is not installed or not found in PATH. " +
-            "R and renv are required to build JSON locally."
+            "R_PLUMBER_URL is not set. Configure the remote R Plumber server URL in .env"
         );
     }
 
-    const tmpDir = await mkdtemp(join(tmpdir(), "strategus-"));
-    const scriptPath = join(tmpDir, "CreateStrategusAnalysisSpecification.R");
-    const jsonPath = join(tmpDir, "analysisSpecification.json");
+    const res = await fetch(`${plumberUrl}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: scriptContent }),
+        signal: AbortSignal.timeout(R_TIMEOUT_MS),
+    });
 
-    const patched = patchOutputPath(scriptContent, jsonPath);
+    const data = await res.json();
 
-    try {
-        await writeFile(scriptPath, patched, "utf8");
-
-        const cwd = join(process.cwd(), "json2strategus-core");
-        const rLibsUser = await resolveRenvLibPath();
-        const log = await new Promise<string>((resolve, reject) => {
-            execFile(
-                "Rscript",
-                [scriptPath],
-                {
-                    cwd,
-                    timeout: R_TIMEOUT_MS,
-                    env: {
-                        ...process.env,
-                        RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE",
-                        R_LIBS_USER: rLibsUser,
-                    },
-                },
-                (error, stdout, stderr) => {
-                    const combined = [stdout, stderr].filter(Boolean).join("\n");
-                    if (error) {
-                        reject(new Error(combined || error.message));
-                    } else {
-                        resolve(combined);
-                    }
-                }
-            );
-        });
-
-        const json = await readFile(jsonPath, "utf8");
-        return { json, log };
-    } finally {
-        await rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+    if (!res.ok) {
+        throw new Error(data.log || data.error || "R script execution failed");
     }
+
+    return { json: data.json, log: data.log ?? "" };
 }
