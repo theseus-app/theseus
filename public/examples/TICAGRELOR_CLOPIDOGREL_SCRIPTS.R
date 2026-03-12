@@ -21,18 +21,15 @@ baseUrl <- "https://atlas-demo.ohdsi.org/WebAPI" # Change this to your ATLAS URL
 
 # ---- 1. Cohort Definitions --------------------------------------------------
 
-# NOTE: IDs for target, comparator, outcome, negative controls, and concept sets
-# are left as 'NA' due to missing IDs in the specification. Fill these before running.
-
-# Dummy IDs and names for illustration only:
-targetCohortId     <- NA
-targetCohortName   <- ""
-comparatorCohortId <- NA
-comparatorCohortName <- ""
+# Cohort IDs and names:
+targetCohortId     <- 1794126
+targetCohortName   <- "Ticagrelor"
+comparatorCohortId <- 1794132
+comparatorCohortName <- "Clopidogrel"
 
 # Outcome cohorts (can be 1 or more)
 outcomeCohortList <- list(
-  list(id = NA, name = "")
+  list(id = 1794131, name = "Acute myocardial infarction events")
 )
 
 # Negative Control Concept Set
@@ -400,5 +397,4 @@ ParallelLogger::saveSettingsToJson(
 )
 
 # ---- END SCRIPT --------------------------------------------------------------
-# NOTE: Update all NA IDs/names with actual cohort/concept set details before use.
 # All parameter choices and how they're used are annotated inline above.
