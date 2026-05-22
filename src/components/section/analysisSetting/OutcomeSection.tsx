@@ -1,63 +1,99 @@
-import { Field, NumInput, SectionCard, Select, YesNoToggle } from "@/components/primitive";
+import { ArrayHeader, Field, NumInput, RowCard, SectionCard, Select, TextInput, YesNoToggle } from "@/components/primitive";
 import { useStore } from "@/stores/StoreProvider";
-import { CvType, ModelType, NoiseLevel } from "@/types/dtoBuilderType";
+import { CvType, ModelType, NoiseLevel, OutcomeModel } from "@/types/dtoBuilderType";
 import { observer } from "mobx-react-lite";
 
 function OutcomeSection() {
     const { study } = useStore()
     const { dto, set } = study
+
+    const fitArgs = dto.fitOutcomeModelArgs;
+
+    const addOutcomeModel = () => {
+        set("fitOutcomeModelArgs", {
+            ...fitArgs,
+            outcomeModels: [
+                ...fitArgs.outcomeModels,
+                {
+                    description: `Model ${fitArgs.outcomeModels.length + 1}`,
+                    modelType: "cox" as ModelType,
+                    useCovariates: false,
+                } satisfies OutcomeModel,
+            ],
+        });
+    };
+
+    const removeOutcomeModel = (idx: number) => {
+        set("fitOutcomeModelArgs", {
+            ...fitArgs,
+            outcomeModels: fitArgs.outcomeModels.filter((_, i) => i !== idx),
+        });
+    };
+
+    const setOutcomeModel = (idx: number, next: Partial<OutcomeModel>) => {
+        const arr = [...fitArgs.outcomeModels];
+        arr[idx] = { ...arr[idx], ...next };
+        set("fitOutcomeModelArgs", { ...fitArgs, outcomeModels: arr });
+    };
+
     return (
         <SectionCard title="Outcome Model">
             <div className="flex flex-col gap-3">
 
-                <Field title="Model Type" label="Specify the statistical model used to estimate the risk of outcome between target and comparator cohorts">
-                    <Select
-                        value={dto.fitOutcomeModelArgs.modelType}
-                        onChange={(v: ModelType) =>
-                            set("fitOutcomeModelArgs", { ...dto.fitOutcomeModelArgs, modelType: v })
-                        }
-                        options={["logistic", "poisson", "cox"]}
-                    />
-                </Field>
+                {/* outcomeModels array (C5) */}
+                <ArrayHeader title="Outcome Models" onAdd={addOutcomeModel} />
+                <div className="space-y-3">
+                    {fitArgs.outcomeModels.map((m, i) => (
+                        <RowCard key={i} onRemove={() => removeOutcomeModel(i)} oneColumn>
+                            <Field label="Description">
+                                <TextInput
+                                    value={m.description}
+                                    onChange={(e) => setOutcomeModel(i, { description: e.target.value })}
+                                    placeholder="Type Description"
+                                />
+                            </Field>
+                            <Field title="Model Type" label="Specify the statistical model used to estimate the risk of outcome between target and comparator cohorts">
+                                <Select
+                                    value={m.modelType}
+                                    onChange={(v: ModelType) => setOutcomeModel(i, { modelType: v })}
+                                    options={["logistic", "poisson", "cox"]}
+                                />
+                            </Field>
+                            <Field
+                                title="Include covariates in outcome model"
+                                label="Should the covariates also be included in the outcome model?"
+                            >
+                                <YesNoToggle
+                                    checked={m.useCovariates}
+                                    onChange={(v) => setOutcomeModel(i, { useCovariates: v })}
+                                />
+                            </Field>
+                        </RowCard>
+                    ))}
+                </div>
 
+                {/* top-level stratified (C5) */}
                 <Field
                     title="Condition regression on strata"
                     label="Should the regression be conditioned on the strata defined in the population object (e.g. by matching or stratifying on propensity scores)?"
                 >
                     <YesNoToggle
-                        checked={dto.fitOutcomeModelArgs.stratified}
-                        onChange={(v) => set("fitOutcomeModelArgs", { ...dto.fitOutcomeModelArgs, stratified: v })}
-                    />
-                </Field>
-
-                <Field
-                    title="Include covariates in outcome model"
-                    label="Should the covariates also be included in the outcome model?"
-                >
-                    <YesNoToggle
-                        checked={dto.fitOutcomeModelArgs.useCovariates}
-                        onChange={(v) => set("fitOutcomeModelArgs", { ...dto.fitOutcomeModelArgs, useCovariates: v })}
-                    />
-                </Field>
-
-                <Field title="Use inverse probability of treatment weighting?">
-                    <YesNoToggle
-                        checked={dto.fitOutcomeModelArgs.inversePtWeighting}
-                        onChange={(v) => set("fitOutcomeModelArgs", { ...dto.fitOutcomeModelArgs, inversePtWeighting: v })}
+                        checked={fitArgs.stratified}
+                        onChange={(v) => set("fitOutcomeModelArgs", { ...fitArgs, stratified: v })}
                     />
                 </Field>
 
                 {/* ── Use regularization (derive from DTO: both prior & control exist) */}
                 {(() => {
                     const isRegOn =
-                        Boolean(dto.fitOutcomeModelArgs.prior && dto.fitOutcomeModelArgs.control);
+                        Boolean(fitArgs.prior && fitArgs.control);
 
-                    const defaultPrior = (): NonNullable<typeof dto.fitOutcomeModelArgs.prior> => ({
+                    const defaultPrior = (): NonNullable<typeof fitArgs.prior> => ({
                         priorType: "laplace",
                         useCrossValidation: false,
                     });
 
-                    const defaultControl = (): NonNullable<typeof dto.fitOutcomeModelArgs.control> => ({
+                    const defaultControl = (): NonNullable<typeof fitArgs.control> => ({
                         tolerance: 1e-7,
                         cvType: "auto",
                         fold: 5,
@@ -69,18 +105,18 @@ function OutcomeSection() {
 
                     const toggleRegularization = (v: boolean) => {
                         if (!v) {
-                            // OFF → null 저장
+                            // OFF → null
                             set("fitOutcomeModelArgs", {
-                                ...dto.fitOutcomeModelArgs,
+                                ...fitArgs,
                                 prior: null,
                                 control: null,
                             });
                         } else {
-                            // ON → 비어있으면 기본값 채움
+                            // ON → fill defaults if empty
                             set("fitOutcomeModelArgs", {
-                                ...dto.fitOutcomeModelArgs,
-                                prior: dto.fitOutcomeModelArgs.prior ?? defaultPrior(),
-                                control: dto.fitOutcomeModelArgs.control ?? defaultControl(),
+                                ...fitArgs,
+                                prior: fitArgs.prior ?? defaultPrior(),
+                                control: fitArgs.control ?? defaultControl(),
                             });
                         }
                     };
@@ -94,19 +130,19 @@ function OutcomeSection() {
                                 <YesNoToggle checked={isRegOn} onChange={toggleRegularization} />
                             </Field>
 
-                            {/* PRIOR / CONTROL: Show only regularization 'on' */}
-                            {isRegOn && dto.fitOutcomeModelArgs.prior && dto.fitOutcomeModelArgs.control && (
+                            {/* PRIOR / CONTROL: Show only when regularization is ON */}
+                            {isRegOn && fitArgs.prior && fitArgs.control && (
                                 <>
                                     <SectionCard title="Control Settings">
                                         <Field label="Maximum relative change in convergence criterion from successive iterations">
                                             <NumInput
                                                 step="0.0000001"
-                                                value={dto.fitOutcomeModelArgs.control.tolerance}
+                                                value={fitArgs.control.tolerance}
                                                 onChange={(e) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         control: {
-                                                            ...dto.fitOutcomeModelArgs.control!,
+                                                            ...fitArgs.control!,
                                                             tolerance: Number(e.target.value),
                                                         },
                                                     })
@@ -116,11 +152,11 @@ function OutcomeSection() {
 
                                         <Field label="Select the cross validation search type">
                                             <Select
-                                                value={dto.fitOutcomeModelArgs.control.cvType}
+                                                value={fitArgs.control.cvType}
                                                 onChange={(v: CvType) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
-                                                        control: { ...dto.fitOutcomeModelArgs.control!, cvType: v },
+                                                        ...fitArgs,
+                                                        control: { ...fitArgs.control!, cvType: v },
                                                     })
                                                 }
                                                 options={["auto"]}
@@ -129,12 +165,12 @@ function OutcomeSection() {
 
                                         <Field label="Number of random folds to employ in cross validation">
                                             <NumInput
-                                                value={dto.fitOutcomeModelArgs.control.fold}
+                                                value={fitArgs.control.fold}
                                                 onChange={(e) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         control: {
-                                                            ...dto.fitOutcomeModelArgs.control!,
+                                                            ...fitArgs.control!,
                                                             fold: Number(e.target.value || 0),
                                                         },
                                                     })
@@ -145,12 +181,12 @@ function OutcomeSection() {
 
                                         <Field label="Number of repetitions of 10-fold cross validation">
                                             <NumInput
-                                                value={dto.fitOutcomeModelArgs.control.cvRepetitions}
+                                                value={fitArgs.control.cvRepetitions}
                                                 onChange={(e) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         control: {
-                                                            ...dto.fitOutcomeModelArgs.control!,
+                                                            ...fitArgs.control!,
                                                             cvRepetitions: Number(e.target.value || 0),
                                                         },
                                                     })
@@ -161,11 +197,11 @@ function OutcomeSection() {
 
                                         <Field label="Noise level for Cyclops screen output">
                                             <Select
-                                                value={dto.fitOutcomeModelArgs.control.noiseLevel}
+                                                value={fitArgs.control.noiseLevel}
                                                 onChange={(v: NoiseLevel) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
-                                                        control: { ...dto.fitOutcomeModelArgs.control!, noiseLevel: v },
+                                                        ...fitArgs,
+                                                        control: { ...fitArgs.control!, noiseLevel: v },
                                                     })
                                                 }
                                                 options={["silent", "quiet", "noisy"]}
@@ -174,12 +210,12 @@ function OutcomeSection() {
 
                                         <Field label="Reset all coefficients to 0 between model fits under cross-validation">
                                             <YesNoToggle
-                                                checked={dto.fitOutcomeModelArgs.control.resetCoefficients}
+                                                checked={fitArgs.control.resetCoefficients}
                                                 onChange={(v) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         control: {
-                                                            ...dto.fitOutcomeModelArgs.control!,
+                                                            ...fitArgs.control!,
                                                             resetCoefficients: v,
                                                         },
                                                     })
@@ -190,12 +226,12 @@ function OutcomeSection() {
                                         <Field label="Starting variance for auto-search cross-validation (-1 mean use estimate based on data)">
                                             <NumInput
                                                 step="0.0001"
-                                                value={dto.fitOutcomeModelArgs.control.startingVariance}
+                                                value={fitArgs.control.startingVariance}
                                                 onChange={(e) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         control: {
-                                                            ...dto.fitOutcomeModelArgs.control!,
+                                                            ...fitArgs.control!,
                                                             startingVariance: Number(e.target.value),
                                                         },
                                                     })
@@ -206,7 +242,7 @@ function OutcomeSection() {
                                     <SectionCard title="Prior">
                                         <Field label="Specify the prior distribution">
                                             <Select
-                                                value={dto.fitOutcomeModelArgs.prior.priorType}
+                                                value={fitArgs.prior.priorType}
                                                 onChange={() => { }}
                                                 options={["laplace"]}
                                             />
@@ -214,12 +250,12 @@ function OutcomeSection() {
 
                                         <Field label="Perform cross-validation to determine prior-variance">
                                             <YesNoToggle
-                                                checked={dto.fitOutcomeModelArgs.prior.useCrossValidation}
+                                                checked={fitArgs.prior.useCrossValidation}
                                                 onChange={(v) =>
                                                     set("fitOutcomeModelArgs", {
-                                                        ...dto.fitOutcomeModelArgs,
+                                                        ...fitArgs,
                                                         prior: {
-                                                            ...dto.fitOutcomeModelArgs.prior!,
+                                                            ...fitArgs.prior!,
                                                             useCrossValidation: v,
                                                         },
                                                     })
