@@ -21,7 +21,7 @@ function resolveOrigin(explicit?: string) {
 
 /** Fetch text file from /public (e.g., "/templates/foo.txt") */
 async function readPublicText(relPath: string) {
-    // relPath: "/templates/customAtlasTemplate_v1.3.0_annotated.txt" 같은 형태 가정
+    // relPath: "/templates/customAtlasTemplate_v1.4.0_annotated.txt" 같은 형태 가정
     const normalized = relPath.replace(/^\/+/, ""); // 앞의 / 제거
     const filePath = join(process.cwd(), "public", normalized);
     // => <project-root>/public/templates/...
@@ -40,9 +40,9 @@ export async function text2json(
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-    // public/templates/customAtlasTemplate_v1.3.0_annotated.txt
+    // public/templates/customAtlasTemplate_v1.4.0_annotated.txt
     const analysisSpecificationsTemplate = await readPublicText(
-        "/templates/customAtlasTemplate_v1.3.0_annotated.txt"
+        "/templates/customAtlasTemplate_v1.4.0_annotated.txt"
     );
 
     const prompt = `<Instruction>

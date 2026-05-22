@@ -60,6 +60,14 @@ const RULES: PathTitleRule[] = [
 
     // ---- getDbCohortMethodDataArgs ----
     { pattern: "getDbCohortMethodDataArgs.maxCohortSize", title: "Max Cohort Size" },
+    { pattern: "getDbCohortMethodDataArgs.restrictToCommonPeriod", title: "Restrict to Common Period" },
+    { pattern: "getDbCohortMethodDataArgs.firstExposureOnly", title: "First Exposure Only" },
+    { pattern: "getDbCohortMethodDataArgs.washoutPeriod", title: "Washout Period (days)" },
+    { pattern: "getDbCohortMethodDataArgs.removeDuplicateSubjects", title: "Remove Duplicate Subjects" },
+    {
+        pattern: "getDbCohortMethodDataArgs.studyPeriods.*.description",
+        title: ({ indices: [i] }) => `Study Period #${i + 1} Description`,
+    },
     {
         pattern: "getDbCohortMethodDataArgs.studyPeriods.*.studyStartDate",
         title: ({ indices: [i] }) => `Study Period #${i + 1} Start Date`,
@@ -70,16 +78,12 @@ const RULES: PathTitleRule[] = [
     },
 
     // ---- createStudyPopArgs ----
-    { pattern: "createStudyPopArgs.restrictToCommonPeriod", title: "Restrict to Common Period" },
-    { pattern: "createStudyPopArgs.firstExposureOnly", title: "First Exposure Only" },
-    { pattern: "createStudyPopArgs.washoutPeriod", title: "Washout Period (days)" },
-    { pattern: "createStudyPopArgs.removeDuplicateSubjects", title: "Remove Duplicate Subjects" },
     { pattern: "createStudyPopArgs.censorAtNewRiskWindow", title: "Censor at New Risk Window" },
     {
         pattern: "createStudyPopArgs.removeSubjectsWithPriorOutcome",
         title: "Remove Subjects with Prior Outcome",
     },
-    { pattern: "createStudyPopArgs.priorOutcomeLookBack", title: "Prior Outcome Lookback (days)" },
+    { pattern: "createStudyPopArgs.priorOutcomeLookback", title: "Prior Outcome Lookback (days)" },
     {
         pattern: "createStudyPopArgs.timeAtRisks.*.description",
         title: ({ indices: [i] }) => `Time-at-Risk #${i + 1} Description`,
@@ -105,46 +109,68 @@ const RULES: PathTitleRule[] = [
         title: ({ indices: [i] }) => `Time-at-Risk #${i + 1} Min Days at Risk`,
     },
 
-    // ---- propensityScoreAdjustment ----
+    // ---- psSettings ----
     {
-        pattern: "propensityScoreAdjustment.psSettings.*.description",
+        pattern: "psSettings.*.description",
         title: ({ indices: [i] }) => `PS Setting #${i + 1} Description`,
     },
     {
-        pattern: "propensityScoreAdjustment.psSettings.*.matchOnPsArgs.maxRatio",
+        pattern: "psSettings.*.trimByPsArgs.trimFraction",
+        title: ({ indices: [i] }) => `PS Setting #${i + 1} Trim Fraction`,
+    },
+    {
+        pattern: "psSettings.*.trimByPsArgs.equipoiseBounds",
+        title: ({ indices: [i] }) => `PS Setting #${i + 1} Equipoise Bounds`,
+    },
+    {
+        pattern: "psSettings.*.matchOnPsArgs.maxRatio",
         title: ({ indices: [i] }) => `PS Setting #${i + 1} Match on PS: Max Ratio`,
     },
     {
-        pattern: "propensityScoreAdjustment.psSettings.*.matchOnPsArgs.caliper",
+        pattern: "psSettings.*.matchOnPsArgs.caliper",
         title: ({ indices: [i] }) => `PS Setting #${i + 1} Match on PS: Caliper`,
     },
     {
-        pattern: "propensityScoreAdjustment.psSettings.*.matchOnPsArgs.caliperScale",
+        pattern: "psSettings.*.matchOnPsArgs.caliperScale",
         title: ({ indices: [i] }) => `PS Setting #${i + 1} Match on PS: Caliper Scale`,
     },
     {
-        pattern: "propensityScoreAdjustment.psSettings.*.stratifyByPsArgs",
+        pattern: "psSettings.*.stratifyByPsArgs",
         title: ({ indices: [i] }) => `PS Setting #${i + 1} Stratify-by-PS Args`,
     },
+    {
+        pattern: "psSettings.*.inversePtWeighting",
+        title: ({ indices: [i] }) => `PS Setting #${i + 1} Inverse PT Weighting`,
+    },
 
-    { pattern: "propensityScoreAdjustment.createPsArgs.maxCohortSizeForFitting", title: "PS: Max Cohort Size for Fitting" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.errorOnHighCorrelation", title: "PS: Error on High Correlation" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.prior.priorType", title: "PS: Prior Type" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.prior.useCrossValidation", title: "PS: Prior Use Cross-Validation" },
+    // ---- createPsArgs ----
+    { pattern: "createPsArgs.maxCohortSizeForFitting", title: "PS: Max Cohort Size for Fitting" },
+    { pattern: "createPsArgs.errorOnHighCorrelation", title: "PS: Error on High Correlation" },
+    { pattern: "createPsArgs.prior.priorType", title: "PS: Prior Type" },
+    { pattern: "createPsArgs.prior.useCrossValidation", title: "PS: Prior Use Cross-Validation" },
 
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.tolerance", title: "PS: Control Tolerance" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.cvType", title: "PS: Control CV Type" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.fold", title: "PS: Control Folds" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.cvRepetitions", title: "PS: Control CV Repetitions" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.noiseLevel", title: "PS: Control Noise Level" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.resetCoefficients", title: "PS: Control Reset Coefficients" },
-    { pattern: "propensityScoreAdjustment.createPsArgs.control.startingVariance", title: "PS: Control Starting Variance" },
+    { pattern: "createPsArgs.control.tolerance", title: "PS: Control Tolerance" },
+    { pattern: "createPsArgs.control.cvType", title: "PS: Control CV Type" },
+    { pattern: "createPsArgs.control.fold", title: "PS: Control Folds" },
+    { pattern: "createPsArgs.control.cvRepetitions", title: "PS: Control CV Repetitions" },
+    { pattern: "createPsArgs.control.noiseLevel", title: "PS: Control Noise Level" },
+    { pattern: "createPsArgs.control.resetCoefficients", title: "PS: Control Reset Coefficients" },
+    { pattern: "createPsArgs.control.startingVariance", title: "PS: Control Starting Variance" },
 
     // ---- fitOutcomeModelArgs ----
-    { pattern: "fitOutcomeModelArgs.modelType", title: "Outcome Model Type" },
+    {
+        pattern: "fitOutcomeModelArgs.outcomeModels.*.description",
+        title: ({ indices: [i] }) => `Outcome Model #${i + 1} Description`,
+    },
+    {
+        pattern: "fitOutcomeModelArgs.outcomeModels.*.modelType",
+        title: ({ indices: [i] }) => `Outcome Model #${i + 1} Type`,
+    },
+    {
+        pattern: "fitOutcomeModelArgs.outcomeModels.*.useCovariates",
+        title: ({ indices: [i] }) => `Outcome Model #${i + 1} Use Covariates`,
+    },
     { pattern: "fitOutcomeModelArgs.stratified", title: "Outcome Model Stratified" },
-    { pattern: "fitOutcomeModelArgs.useCovariates", title: "Use Covariates" },
-    { pattern: "fitOutcomeModelArgs.inversePtWeighting", title: "Inverse Probability of Treatment Weighting" },
 
     { pattern: "fitOutcomeModelArgs.prior.priorType", title: "Outcome Model Prior Type" },
     { pattern: "fitOutcomeModelArgs.prior.useCrossValidation", title: "Outcome Model Prior Use Cross-Validation" },
