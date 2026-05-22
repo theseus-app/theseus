@@ -16,7 +16,7 @@ function StudyPopulationSectionCard() {
                     label="Set the cohort index date range. Leave blank to use all time."
                     onAdd={() => set("getDbCohortMethodDataArgs", {
                         ...dto.getDbCohortMethodDataArgs,
-                        studyPeriods: [...dto.getDbCohortMethodDataArgs.studyPeriods, { description: "", studyStartDate: "", studyEndDate: "" }],
+                        studyPeriods: [...dto.getDbCohortMethodDataArgs.studyPeriods, { description: "", studyStartDate: null, studyEndDate: null }],
                     })} />
                 <div className="space-y-3">
                     {dto.getDbCohortMethodDataArgs.studyPeriods.map((p, i) => (
