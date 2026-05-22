@@ -100,9 +100,9 @@ export async function json2strategus(
 ): Promise<string> {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-    // public/templates/CreateStrategusAnalysisSpecification_template.R
+    // public/templates/CreateStrategusAnalysisSpecification_template_v1.4.R
     const template = await readPublicText(
-        "/templates/CreateStrategusAnalysisSpecification_template.R"
+        "/templates/CreateStrategusAnalysisSpecification_template_v1.4.R"
     );
 
     const prompt = `<Instruction>
@@ -140,7 +140,7 @@ export async function debugStrategusScript(
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     const template = await readPublicText(
-        "/templates/CreateStrategusAnalysisSpecification_template.R"
+        "/templates/CreateStrategusAnalysisSpecification_template_v1.4.R"
     );
 
     const prompt = `<Instruction>
