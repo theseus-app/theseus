@@ -28,59 +28,64 @@ export const defaultDTO: StudyDTO = {
     getDbCohortMethodDataArgs: {
         studyPeriods: [
             {
+                description: "",
                 studyStartDate: null,
                 studyEndDate: null,
             },
         ],
+        firstExposureOnly: false,
+        removeDuplicateSubjects: "keep all",
+        restrictToCommonPeriod: false,
+        washoutPeriod: 365,
         maxCohortSize: 0,
     },
     createStudyPopArgs: {
-        restrictToCommonPeriod: false,
-        firstExposureOnly: false,
-        washoutPeriod: 0,
-        removeDuplicateSubjects: "keep all",
-        censorAtNewRiskWindow: false,
         removeSubjectsWithPriorOutcome: true,
-        priorOutcomeLookBack: 99999,
+        priorOutcomeLookback: 99999,
         timeAtRisks: [
             {
                 description: "",
-                riskWindowStart: 0,
+                minDaysAtRisk: 1,
+                riskWindowStart: 1,
                 startAnchor: "cohort start",
                 riskWindowEnd: 0,
                 endAnchor: "cohort end",
-                minDaysAtRisk: 1,
             },
         ],
+        censorAtNewRiskWindow: false,
     },
-    propensityScoreAdjustment: {
-        psSettings: [
-            {
-                description: "PS 1",
-                matchOnPsArgs: { maxRatio: 1, caliper: 0.2, caliperScale: "standardized logit" },
-                stratifyByPsArgs: null,
-            },
-        ],
-        createPsArgs: {
-            maxCohortSizeForFitting: 250000,
-            errorOnHighCorrelation: true,
-            prior: { priorType: "laplace", useCrossValidation: true },
-            control: {
-                tolerance: 2e-7,
-                cvType: "auto",
-                fold: 10,
-                cvRepetitions: 10,
-                noiseLevel: "silent",
-                resetCoefficients: true,
-                startingVariance: 0.01,
-            },
+    psSettings: [
+        {
+            description: "PS 1",
+            trimByPsArgs: null,
+            matchOnPsArgs: { maxRatio: 1, caliper: 0.2, caliperScale: "standardized logit" },
+            stratifyByPsArgs: null,
+            inversePtWeighting: false,
+        },
+    ],
+    createPsArgs: {
+        maxCohortSizeForFitting: 250000,
+        errorOnHighCorrelation: true,
+        prior: { priorType: "laplace", useCrossValidation: true },
+        control: {
+            tolerance: 2e-7,
+            cvType: "auto",
+            fold: 10,
+            cvRepetitions: 10,
+            noiseLevel: "silent",
+            resetCoefficients: true,
+            startingVariance: 0.01,
         },
     },
     fitOutcomeModelArgs: {
-        modelType: "cox",
+        outcomeModels: [
+            {
+                description: "",
+                modelType: "cox",
+                useCovariates: false,
+            },
+        ],
         stratified: false,
-        useCovariates: false,
-        inversePtWeighting: false,
         prior: { priorType: "laplace", useCrossValidation: true },
         control: {
             tolerance: 2e-7,
