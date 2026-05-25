@@ -68,9 +68,6 @@ function Text2JsonSectionCardInner() {
                 const pretty = JSON.stringify(jsonData, null, 2);
                 await sleep(3000);
                 setUpdatedSpec(pretty);
-                setDescription(
-                    "This specification incorporates the key details provided in the text as follows:\n\n- **Study Periods**: Both periods are now explicitly specified:\n  - Period 1: November 2011 to March 2019 (`20111101` to `20190331`).\n  - Period 2: March 2013 to December 2016 (`20130301` to `20161231`).\n- **Time-at-Risk Windows**:\n  - TAR 1: The primary window begins 1 day after index (to disregard day 0) and goes to end of observation, consistent with censoring at database exit with continued inclusion after treatment discontinuation/switch in the first year.\n  - TAR 2: 5-year risk window post-index (1 day after start, through 1826 days = 5 years).\n  - TAR 3: \"On-treatment\" period, starting 1 day after index through end of persistent treatment (specific logic for persistent exposure and 7-day gap would be implemented in cohort definition, but annotated here).\n- **Propensity Score Adjustment**:\n  - Three PS settings correspond to:\n    - PS 1: One-to-one greedy matching (`maxRatio=1`).\n    - PS 2: Variable-ratio matching with up to 10 (`maxRatio=10`).\n    - PS 3: Decile-based propensity score stratification (`numberOfStrata=10`, base \"all\").\n- **Outcome Model**: Kept as Cox regression per the text.\n- Unspecified settings remain at their default values.\nNo cohort or concept IDs or names, or covariate selections, are changed since these are not specified in the text."
-                );
                 return;
             }
 
@@ -129,6 +126,7 @@ function Text2JsonSectionCardInner() {
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full h-24 rounded-xl border p-3 text-sm"
                     placeholder="e.g. Derived from the Methods section; sensitivity analysis omitted."
+                    aria-label="Notes about how this spec was derived"
                 />
             </Field>
 
