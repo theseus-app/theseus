@@ -88,13 +88,9 @@ function Text2JsonSectionCardInner() {
                 throw new Error(`API ${res.status}: ${t}`);
             }
 
-            const { updatedSpec, description } = (await res.json()) as {
-                updatedSpec: string;
-                description: string;
-            };
+            const { updatedSpec } = (await res.json()) as { updatedSpec: string };
 
             setUpdatedSpec(updatedSpec);
-            setDescription(description);
         } catch (e: any) {
             setError(e?.message ?? "Failed to convert text to JSON spec");
         } finally {
@@ -127,13 +123,14 @@ function Text2JsonSectionCardInner() {
                     {loading ? "Converting..." : "Convert text → JSON"}
                 </button>
             </div>
-            {description && (
-                <Field title="How this spec was derived (LLM description)">
-                    <pre className="text-xs bg-black text-green-200 rounded-xl p-3 overflow-auto max-h-48 whitespace-pre-wrap">
-                        {description}
-                    </pre>
-                </Field>
-            )}
+            <Field title="Notes (optional)" label="Add your own notes about how this spec was derived.">
+                <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full h-24 rounded-xl border p-3 text-sm"
+                    placeholder="e.g. Derived from the Methods section; sensitivity analysis omitted."
+                />
+            </Field>
 
             {updatedSpec && (
                 <>

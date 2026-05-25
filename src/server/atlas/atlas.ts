@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { readFile } from "fs/promises";
 import { join } from "path";
+import { getProvider, studyDtoSchema } from "theseus-core";
 
 
 /** Remove code fences (```lang ... ```) from LLM outputs. */
@@ -30,65 +31,33 @@ async function readPublicText(relPath: string) {
 }
 
 /**
- * User text input -> ATLAS JSON & description
+ * User free text -> validated StudyDTO (stringified for the existing client contract).
  */
 export async function text2json(
     text: string,
-    currentAnalysisSpecifications: string,
-    opts?: { origin?: string; cache?: RequestCache; apiKey?: string } // <-- 서버 라우트에서 origin 전달 권장
-): Promise<{ updatedSpec: string; description: string }> {
-
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-    // public/templates/customAtlasTemplate_v1.4.0_annotated.txt
+    _currentAnalysisSpecifications: string,
+    _opts?: { origin?: string; cache?: RequestCache; apiKey?: string },
+): Promise<{ updatedSpec: string }> {
     const analysisSpecificationsTemplate = await readPublicText(
-        "/templates/customAtlasTemplate_v1.4.0_annotated.txt"
+        "/templates/customAtlasTemplate_v1.4.0_annotated.txt",
     );
 
     const prompt = `<Instruction>
-From the provided <Text>, extract the key information and update the <Current Analysis Specifications> JSON to configure a population-level estimation study using the OMOP-CDM.
+From the provided <Text>, extract the key information to configure a population-level estimation study using the OMOP-CDM.
 Leave any settings at their default values if they are not specified in the <Text>.
 Refer to the fields and value types provided in the <Analysis Specifications Template> and do not add any additional fields.
-Following the <Output Style> format, output the updated analysis specifications JSON and provide a description of how the new settings are applied to the specification. 
 </Instruction>
 
 <Text>
 ${text}
 </Text>
 
-<Current Analysis Specifications>
-${currentAnalysisSpecifications}
-</Current Analysis Specifications>
-
 <Analysis Specifications Template>
 ${analysisSpecificationsTemplate}
-</Analysis Specifications Template>
+</Analysis Specifications Template>`;
 
-<Output Style>
-\`\`\`json
-analysis specifications 
-\`\`\`
----
-Description
-</Output Style>`;
-
-    const completion = await client.chat.completions.create({
-        model: "gpt-4.1-2025-04-14",
-        messages: [{ role: "user", content: prompt }],
-    });
-
-    const content = completion.choices[0]?.message?.content?.trim() ?? "";
-
-    let updatedSpecRaw = content;
-    let description = "";
-    const splitMatch = content.match(/([\s\S]*?)\n?---\n?([\s\S]*)/);
-    if (splitMatch) {
-        updatedSpecRaw = splitMatch[1];
-        description = splitMatch[2]?.trim() ?? "";
-    }
-
-    const updatedSpec = stripCodeFences(updatedSpecRaw);
-    return { updatedSpec, description };
+    const spec = await getProvider("OPENAI", "LIGHT").generateStructured(studyDtoSchema, { prompt });
+    return { updatedSpec: JSON.stringify(spec, null, 2) };
 }
 
 /**
