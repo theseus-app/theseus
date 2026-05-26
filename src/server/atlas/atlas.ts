@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { getProvider, studyDtoSchema } from "theseus-core";
+import { getProvider, studyDtoSchema, generateStrategusScript } from "theseus-core";
 
 
 /** Remove code fences (```lang ... ```) from LLM outputs. */
@@ -61,41 +61,14 @@ ${analysisSpecificationsTemplate}
 }
 
 /**
- * ATLAS JSON -> Strategus R script
+ * StudyDTO JSON -> Strategus R script (deterministic, no LLM).
  */
 export async function json2strategus(
     analysisSpecifications: string,
-    opts?: { origin?: string; cache?: RequestCache; apiKey?: string }
+    _opts?: { origin?: string; cache?: RequestCache; apiKey?: string }
 ): Promise<string> {
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-    // public/templates/CreateStrategusAnalysisSpecification_template_v1.4.R
-    const template = await readPublicText(
-        "/templates/CreateStrategusAnalysisSpecification_template_v1.4.R"
-    );
-
-    const prompt = `<Instruction>
-Refer to settings in <Analysis Specifications> and use the OHDSI Strategus package to write CreateStrategusAnalysisSpecification.R script. 
-Refer to <Template> to write the script.
-Output only the R script without any additional text.
-Include detailed annotations within the script to help users understand how the settings are applied.
-</Instruction>
-
-<Analysis Specifications>
-${analysisSpecifications}
-</Analysis Specifications>
-
-<Template>
-${template}
-</Template>`;
-
-    const completion = await client.chat.completions.create({
-        model: "gpt-4.1-2025-04-14",
-        messages: [{ role: "user", content: prompt }],
-    });
-
-    const content = completion.choices[0]?.message?.content?.trim() ?? "";
-    return stripCodeFences(content);
+    const dto = studyDtoSchema.parse(JSON.parse(analysisSpecifications));
+    return generateStrategusScript(dto);
 }
 
 /**
