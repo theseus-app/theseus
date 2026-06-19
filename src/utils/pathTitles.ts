@@ -1,5 +1,5 @@
 // src/constants/pathTitles.ts
-export type PathTitleRule = {
+type PathTitleRule = {
     /** e.g., "cohortDefinitions.outcomeCohort.*.name" */
     pattern: string;
     /** string or formatter using captured indices from '*' */

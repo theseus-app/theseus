@@ -1,12 +1,5 @@
 import { StudyDTO } from "@/types/dtoBuilderType";
 
-export const yyyymmdd = (d: Date) => {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}${mm}${dd}`;
-};
-
 export const fromHtmlDate = (val: string) => val.replaceAll("-", "");
 export const toHtmlDate = (yyyymmddStr: string | null) =>
     yyyymmddStr && yyyymmddStr.length === 8

@@ -11,8 +11,6 @@ import Header from "@/components/Header";
 function StudyBuilderPage() {
   return (
     <div className="w-full flex flex-col max-w-[1280px] mx-auto mt-4">
-      {/* Api Input */}
-      {/* <ApiInput /> */}
       <Header />
       <main className="min-h-screen bg-gray-100 mt-4">
         {/* name */}

@@ -1,6 +1,6 @@
 const R_TIMEOUT_MS = 300_000;
 
-export interface ExecRResult {
+interface ExecRResult {
     json: string;
     log: string;
 }

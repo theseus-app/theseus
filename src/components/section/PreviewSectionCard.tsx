@@ -4,8 +4,7 @@ import { Field } from "@/components/primitive";
 import copyToClipboard from "@/utils/copyToClipboard";
 import { useStore } from "@/stores/StoreProvider";
 import { observer } from "mobx-react-lite";
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { sleep } from "@/utils/sleep";
 
 const MAX_DEBUG_ATTEMPTS = 3;
 
